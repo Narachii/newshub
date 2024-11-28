@@ -1,6 +1,10 @@
 var express = require ('express')
 var ejs = require('ejs')
 
+// set up environment variables
+var dotenv = require('dotenv')
+dotenv.config()
+
 //Import mysql module
 var mysql = require('mysql2')
 

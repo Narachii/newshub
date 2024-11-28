@@ -1,0 +1,19 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Fetch News</title>
+    <link rel="stylesheet" href="/css/bootstrap.min.css" />
+  </head>
+  <body>
+    <h1>Fetch News</h1>
+    <form action="fetch_news" method="GET">
+      <p>What book do you want?</p>
+      <input id="keywords" type="text" name="keywords">
+      <select id="source" name="source">
+        <option value="bbc-news">BBC</option>
+        <option value="the-verge">TheVerge</option>
+      </select>
+      <input type="submit" value="Fetch" >
+    </form>
+  </body>
+</html>
