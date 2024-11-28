@@ -28,7 +28,10 @@ CREATE TABLE IF NOT EXISTS news (
   author varchar(50),
   title varchar(255) NOT NULL,
   description text NOT NULL,
-  category varchar(50),
+  content text NOT NULL,
+  url text,
+  imageUrl text,
+  published_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY(id)
