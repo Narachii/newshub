@@ -1,0 +1,16 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Welcome to </title>
+    <link rel="stylesheet"  type="text/css" href="/main.css" />
+  </head>
+  <body>
+    <h1>Here are the new lists</h1>
+    <h2>Here are the books that we sell:</h2>
+    <ul>
+      <% newsList.forEach(function(item) { %>
+        <li>title: <%= item.title %>, author: <%=item.author %>, description: <%=item.description %> </li>
+      <% }) %>
+    </ul>
+    </body>
+</html>
