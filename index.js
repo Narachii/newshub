@@ -10,6 +10,9 @@ const port = 8000
 // Tell Express that we want to use EJS as the templating engine
 app.set('view engine', 'ejs')
 
+// Set up bootstrap css
+app.use('/css', express.static(__dirname + '/node_modules/bootstrap/dist/css'));
+
 // Set up the body parser
 app.use(express.urlencoded({ extended: true }))
 
