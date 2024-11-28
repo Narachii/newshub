@@ -10,6 +10,9 @@ const port = 8000
 // Tell Express that we want to use EJS as the templating engine
 app.set('view engine', 'ejs')
 
+// Set up the body parser
+app.use(express.urlencoded({ extended: true }))
+
 // Define the database connection
 const db = mysql.createConnection ({
     host: 'localhost',
@@ -33,3 +36,7 @@ app.use('/', mainRoutes)
 
 // Start the web app listening
 app.listen(port, () => console.log(`Node app listening on port ${port}!`))
+
+// Load the route handlers for /books
+const newsRoutes = require('./routes/news')
+app.use('/news', newsRoutes)

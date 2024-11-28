@@ -21,3 +21,15 @@ CREATE TABLE IF NOT EXISTS users (
     hashedPassword varchar(255),
     PRIMARY KEY(id)
 );
+
+# Create the news
+CREATE TABLE IF NOT EXISTS news (
+  id int NOT NULL AUTO_INCREMENT,
+  author varchar(50),
+  title varchar(255) NOT NULL,
+  description text NOT NULL,
+  category varchar(50),
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY(id)
+)
