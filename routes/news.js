@@ -4,6 +4,50 @@ const router = express.Router()
 const NewsAPI = require('newsapi');
 const newsapi = new NewsAPI(process.env.NEWS_API_KEY);
 
+router.get('/search',function(req, res, next){
+    res.render("search.ejs")
+})
+
+router.get('/search_result', function (req, res, next) {
+  // TODO: valdidation
+  let conditions = []
+  let params = []
+
+  if (typeof req.query.author !== 'undefined') {
+    conditions.push("author LIKE ?");
+    params.push("%" + req.query.author + "%");
+  }
+
+  if (typeof req.query.title !== 'undefined') {
+    conditions.push("title LIKE ?");
+    params.push("%" + req.query.title + "%");
+  }
+
+  if (typeof req.query.publishedAt !== 'undefined') {
+    let date = new Date();
+    if (req.query.publishedAt == "today") {
+      date.setDate(date.getDate() - 1)
+    } else if (req.query.publishedAt == "week") {
+      date.setDate(date.getDate() - 7)
+    } else if (req.query.publishedAt == "month") {
+      date.setDate(date.getDate() - 30)
+    }
+    conditions.push("published_at >= ?");
+    params.push(date);
+  }
+
+  let whereQueries = conditions.length ? conditions.join(' AND ') : '1'
+    // Search the database
+  let sqlquery = "SELECT * FROM news WHERE " + whereQueries // query database to get all the books
+  // execute sql query
+  db.query(sqlquery, params, (err, result) => {
+      if (err) {
+          next(err)
+      }
+      res.render("news_list.ejs", {newsList:result})
+   })
+})
+
 router.get('/list', function(req, res, next) {
     let sqlquery = "SELECT * FROM news" // query database to get all news
     // execute sql query
@@ -16,12 +60,12 @@ router.get('/list', function(req, res, next) {
 })
 
 
+
 router.get('/fetch', function(req, res, next) {
   res.render('news_fetch.ejs')
 })
 
 router.get('/fetch_news', function(req, res, next) {
-  console.log(req.query)
   let keyword = req.query.keyword
   let source = req.query.source
   // To query /v2/everything
@@ -33,7 +77,7 @@ router.get('/fetch_news', function(req, res, next) {
     sortBy: 'relevancy',
     pageSize: 10,
   }).then(response => {
-    // TODO: Add error handling
+    // TODO: Add error handling, source column
     response.articles.forEach(function(article) {
       let sqlquery = `
         INSERT INTO news (author, title, description, url, imageUrl, published_at, content)
