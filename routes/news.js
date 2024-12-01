@@ -4,11 +4,23 @@ const router = express.Router()
 const NewsAPI = require('newsapi');
 const newsapi = new NewsAPI(process.env.NEWS_API_KEY);
 
+const redirectLogin = (req, res, next) => {
+  if (!req.session.userId ) {
+    // redirect to the login page
+    console.log("user does not have userId in session")
+    console.log("Session:", req.session)
+    res.redirect('../users/loggedin') 
+  } else {
+      console.log("user has userId in session")
+      next (); // move to the next middleware function
+  }
+}
+
 router.get('/search',function(req, res, next){
     res.render("search.ejs")
 })
 
-router.get('/search_result', function (req, res, next) {
+router.get('/search_result', redirectLogin, function (req, res, next) {
   // TODO: valdidation
   let conditions = []
   let params = []
@@ -65,7 +77,7 @@ router.get('/fetch', function(req, res, next) {
   res.render('news_fetch.ejs')
 })
 
-router.get('/fetch_news', function(req, res, next) {
+router.get('/fetch_news', redirectLogin, function(req, res, next) {
   let keyword = req.query.keyword
   let source = req.query.source
   // To query /v2/everything
