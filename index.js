@@ -28,7 +28,7 @@ app.use(express.urlencoded({ extended: true }))
 
 // Create a session
 app.use(session({
- secret: 'somerandomstuff',
+ secret: process.env.SESSION_SECRET,
  resave: false,
  saveUninitialized: false,
  cookie: {
