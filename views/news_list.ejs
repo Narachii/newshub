@@ -9,7 +9,8 @@
     <h2>Here are the books that we sell:</h2>
     <ul>
       <% newsList.forEach(function(item) { %>
-        <li>title: <%= item.title %>, author: <%=item.author %>, description: <%=item.description %> </li>
+      <li><a href="./<%= item.id %>"><%= item.title %></a></li>
+        <li>author: <%=item.author %>, description: <%=item.description %> </li>
       <% }) %>
     </ul>
     </body>

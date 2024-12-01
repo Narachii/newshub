@@ -71,8 +71,6 @@ router.get('/list', function(req, res, next) {
      })
 })
 
-
-
 router.get('/fetch', function(req, res, next) {
   res.render('news_fetch.ejs')
 })
@@ -104,6 +102,20 @@ router.get('/fetch_news', redirectLogin, function(req, res, next) {
   })
       res.send('articles are added to database')
   })
+})
+
+router.get('/:id', function(req, res, next) {
+  const newsId = req.params.id;
+  let sqlquery = "SELECT * FROM news where id = ?"
+    db.query(sqlquery, [newsId], (err, result) => {
+        if (err) {
+            next(err)
+        }
+        if (result.length == 0) {
+          return res.send('There is no article found   <a href='+'../'+'>Home</a>')
+        }
+        res.render("news_show.ejs", {article:result[0]})
+     })
 })
 
 // Export the router object so index.js can access it
