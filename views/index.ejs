@@ -9,5 +9,11 @@
     <p><a href="news/list">News list</a></p>
     <p><a href="news/fetch">Fetch News</a></p>
     <p><a href="news/search">Search News</a></p>
+    <% if (!userSession) { %>
+    <p><a href="users/register">Register with us</a></p>
+    <p><a href="users/loggedin">User Signin</a></p>
+    <% } else { %>
+    <p><a href="users/logout">Logout</a></p>
+    <% } %>
   </body>
 </html>

@@ -8,6 +8,12 @@ dotenv.config()
 //Import mysql module
 var mysql = require('mysql2')
 
+//Session
+var session = require ('express-session')
+
+//validation
+var validator = require ('express-validator');
+
 const app = express()
 const port = 8000
 
@@ -19,6 +25,16 @@ app.use('/css', express.static(__dirname + '/node_modules/bootstrap/dist/css'));
 
 // Set up the body parser
 app.use(express.urlencoded({ extended: true }))
+
+// Create a session
+app.use(session({
+ secret: 'somerandomstuff',
+ resave: false,
+ saveUninitialized: false,
+ cookie: {
+  expires: 600000
+ }
+}))
 
 // Define the database connection
 const db = mysql.createConnection ({
@@ -41,9 +57,13 @@ global.db = db
 const mainRoutes = require("./routes/main")
 app.use('/', mainRoutes)
 
-// Start the web app listening
-app.listen(port, () => console.log(`Node app listening on port ${port}!`))
+// Load the route handlers for /users
+const usersRoutes = require('./routes/users')
+app.use('/users', usersRoutes)
 
 // Load the route handlers for /books
 const newsRoutes = require('./routes/news')
 app.use('/news', newsRoutes)
+
+// Start the web app listening
+app.listen(port, () => console.log(`Node app listening on port ${port}!`))
