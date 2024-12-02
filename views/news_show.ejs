@@ -15,5 +15,36 @@
         <li>image: <%=article.imageUrl %> </li>
         <li>publishedAt: <%=article.published_at %> </li>
     </ul>
-    </body>
+    <h3> Comment Section </h3>
+    <ul>
+      <% comments.forEach(function(comment) { %>
+          <li>userName: <%= comment.userName %> </li>
+          <li>content: <%= comment.content %> </li>
+
+          <% if (comment.userId == userId) { %>
+          <form id="editForm-<%= comment.id %>" method="POST" action="./comments?_method=PUT">
+    <input type="hidden" name="news_id" value="<%= article.id %>" />
+    <input type="hidden" name="id" value="<%= comment.id %>" />
+    <textarea name="content" rows="4" cols="50"><%= comment.content %></textarea><br><br>
+    <button type="submit">Update Comment</button>
+  </form>
+  <form id="deleteForm-<%= comment.id %>" method="POST" action="./comments/<%= comment.id %>?_method=DELETE">
+    <input type="hidden" name="news_id" value="<%= article.id %>" />
+    <button type="submit">DELETE Comment</button>
+  </form>
+  <% }
+  %>
+      <% }) %>
+    </ul>
+
+    <% if (!loginUserComment) { %>
+      <form method="POST" action="comments">
+        <input type="hidden" name="news_id" value="<%= article.id %>" />
+        <label for="content">Comment:</label><br>
+        <textarea id="content" name="content" rows="4" cols="50" placeholder="write your comment"></textarea><br>
+        <input type="submit" value="Post Comment"/>
+      </form>
+      </body>
+    <% } %>
+    <h3><a href='../'>Home </a></h3>
 </html>

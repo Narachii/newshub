@@ -61,7 +61,8 @@ router.post('/loggedin', function (req, res, next) {
   let hashedPassword = ""
   let hashedPlainPassword = ""
   let plainPassword = req.body.password
-  let sqlquery = "SELECT hashedPassword FROM users where userName =" + '"' + req.body.username + '"'
+  let sqlquery = "SELECT id, hashedPassword FROM users where userName =" + '"' + req.body.username + '"'
+  let userId = 0;
   // execute sql query
   db.query(sqlquery, (err, result) => {
       if (err) {
@@ -71,15 +72,16 @@ router.post('/loggedin', function (req, res, next) {
       return res.send('Check your passowrd and try again <a href='+'./loggedin'+'>Login</a> <a href='+'../'+'>Home</a>')
     }
     hashedPassword = result[0].hashedPassword
+    userId = result[0].id
 
     bcrypt.compare(plainPassword, hashedPassword, function(err, result) {
       if (err) {
         console.log(err)
-        return res.send('Check your passowrd and try again <a href='+'./loggedin'+'>Login</a> <a href='+'../'+'>Home</a>')
+        return res.send('Check youuserId passowrd and try again <a href='+'./loggedin'+'>Login</a> <a href='+'../'+'>Home</a>')
       }
       else if (result == true) {
         // Save user session here, when login is successful
-        req.session.userId = req.body.username;
+        req.session.userId = userId;
         res.send('You succesfully loged in! <a href='+'../'+'>Home</a>')
       }
       else {
