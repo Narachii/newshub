@@ -17,6 +17,10 @@ var validator = require ('express-validator');
 const app = express()
 const port = 8000
 
+// For update/delete method
+const methodOverride = require('method-override');
+app.use(methodOverride('_method'));
+
 // Tell Express that we want to use EJS as the templating engine
 app.set('view engine', 'ejs')
 

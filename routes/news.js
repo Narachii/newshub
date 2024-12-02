@@ -9,7 +9,7 @@ const redirectLogin = (req, res, next) => {
     // redirect to the login page
     console.log("user does not have userId in session")
     console.log("Session:", req.session)
-    res.redirect('../users/loggedin') 
+    res.redirect('../users/loggedin')
   } else {
       console.log("user has userId in session")
       next (); // move to the next middleware function
@@ -104,18 +104,107 @@ router.get('/fetch_news', redirectLogin, function(req, res, next) {
   })
 })
 
-router.get('/:id', function(req, res, next) {
-  const newsId = req.params.id;
-  let sqlquery = "SELECT * FROM news where id = ?"
-    db.query(sqlquery, [newsId], (err, result) => {
+router.post('/comments', redirectLogin, function(req, res, next) {
+  const userId = req.session.userId
+  const newsId  = req.body.news_id
+  const content = req.body.content
+  console.log("userId:", userId)
+  console.log("newsId:", newsId)
+  console.log("content:", content)
+  let sqlquery = "INSERT INTO comments (user_id, news_id, content) VALUES (?, ?, ?)"
+    db.query(sqlquery, [userId, newsId, content], (err, result) => {
         if (err) {
             next(err)
         }
-        if (result.length == 0) {
-          return res.send('There is no article found   <a href='+'../'+'>Home</a>')
+    })
+   return res.redirect('./' + newsId)
+})
+
+router.get('/:id', redirectLogin, function(req, res, next) {
+  const newsId = req.params.id;
+  let sqlquery = "SELECT * FROM news where id = ?"
+  let article = []
+  let loginUserComment = false;
+  db.query(sqlquery, [newsId], (err, result) => {
+      if (err) {
+          next(err)
+      }
+      if (result.length == 0) {
+        return res.send('There is no article found   <a href='+'../'+'>Home</a>')
+      }
+      article = result[0]
+  })
+  let commentSql = "SELECT comments.id, content, userName, comments.user_id as userId from comments inner join users on users.id = comments.user_id where comments.news_id = ?"
+  db.query(commentSql, [newsId], (err, result) => {
+      if (err) {
+          next(err)
+      }
+      result.forEach(function(item) {
+        if (item.userId == req.session.userId) {
+          loginUserComment = true
         }
-        res.render("news_show.ejs", {article:result[0]})
-     })
+      });
+      res.render("news_show.ejs", { article:article, comments:result, loginUserComment: loginUserComment, userId: req.session.userId })
+  })
+})
+
+router.put('/comments', function(req, res, next) {
+  const commentId = req.body.id
+  const newsId = req.body.news_id
+  const sqlquery = "SELECT user_id FROM comments WHERE id = ?";
+  const content = req.body.content
+
+  db.query(sqlquery, [commentId], (err, result) => {
+      if (err) {
+          next(err)
+      } else {
+        if (result.length == 0) {
+          return res.status(500).send("There is no comment found")
+        }
+
+        if (result[0].user_id != req.session.userId) {
+          return res.status(401).send("The operation is unauthorized")
+        }
+      }
+  })
+
+  const updateQuery = "UPDATE comments SET content = ? WHERE id = ?"
+    db.query(updateQuery, [content, commentId], (err, result) => {
+      if (err) {
+        res.status(500).send("Something happend during the operation")
+    } else {
+      res.redirect(`./${newsId}`);
+    }
+  })
+})
+
+
+router.delete('/comments/:id/', function(req, res, next) {
+  const commentId = req.params.id
+  const newsId = req.body.news_id
+  const sqlquery = "SELECT user_id FROM comments WHERE id = ?";
+
+  db.query(sqlquery, [commentId], (err, result) => {
+      if (err) {
+          next(err)
+      } else {
+        if (result.length == 0) {
+          return res.status(500).send("There is no comment found")
+        }
+        if (result[0].user_id != req.session.userId) {
+          return res.status(401).send("The operation is unauthorized")
+        }
+      }
+  })
+
+  const updateQuery = "DELETE from comments WHERE id = ?"
+    db.query(updateQuery, [commentId], (err, result) => {
+      if (err) {
+      res.status(500).send("Something happend during the operation")
+    } else {
+      res.redirect(`../${newsId}`);
+    }
+  })
 })
 
 // Export the router object so index.js can access it

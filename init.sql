@@ -35,4 +35,19 @@ CREATE TABLE IF NOT EXISTS news (
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY(id)
-)
+);
+
+# Create the comments
+CREATE TABLE IF NOT EXISTS comments (
+  id int AUTO_INCREMENT,
+  user_id int NOT NULL,
+  news_id int NOT NULL,
+  content text NOT NULL,
+  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (id),
+  FOREIGN KEY (user_id) REFERENCES users(id),
+  FOREIGN KEY (news_id) REFERENCES news(id),
+
+  UNIQUE KEY unique_user_news (user_id, news_id)
+);
