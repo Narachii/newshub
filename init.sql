@@ -47,7 +47,7 @@ CREATE TABLE IF NOT EXISTS news (
   PRIMARY KEY(id),
 
   FOREIGN KEY (source_id) REFERENCES source(id),
-  UNIQUE KEY unique_author_title_source (title, author, source_id)
+  UNIQUE KEY unique_author_title (title, author)
 );
 
 # Create the comments
