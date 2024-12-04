@@ -1,17 +1,28 @@
 <!doctype html>
 <html>
   <head>
-    <title>Welcome to </title>
-    <link rel="stylesheet"  type="text/css" href="/main.css" />
+    <link rel="stylesheet" href="/css/bootstrap.min.css" />
+    <%- include('header.ejs') %>
   </head>
   <body>
-    <h1>Here are the new lists</h1>
-    <h2>Here are the books that we sell:</h2>
-    <ul>
-      <% newsList.forEach(function(item) { %>
-      <li><a href="./<%= item.id %>"><%= item.title %></a></li>
-        <li>author: <%=item.author %>, description: <%=item.description %> </li>
-      <% }) %>
-    </ul>
-    </body>
+    <div class="container">
+      <div class="row">
+        <h1 class="text-center">News List </h1>
+        <% newsList.forEach(function(article) { %>      
+          <div class="col-lg-4 col-md-6 mb-3">
+            <a href="./<%= article.id %>" class="text-decoration-none text-reset">
+              <div class="card mb-4 h-100">
+                  <img src=<%= article.imageUrl %> class="card-img-top" alt="News Image">
+                  <div class="card-body">
+                    <h5 class="card-title"><%= article.title %></h5>
+                    <p class="card-text"><%= article.description %></p>
+                    <p class="card-text"><small class="text-muted">By <%= article.author %> - <%= new Date(article.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })%></small></p>
+                  </div>
+              </div>
+            </a>
+          </div>
+        <% }) %>
+      </div>
+   </div>
+  </body>
 </html>

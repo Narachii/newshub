@@ -3,20 +3,36 @@
   <head>
     <title>Search News</title>
     <link rel="stylesheet" href="/css/bootstrap.min.css" />
+    <%- include('header.ejs') %>
   </head>
-  <body>
-    <h1>Search News</h1>
-    <form action="search_result" method="GET">
-      <p>What articles do you want to find?</p>
-      <input id="author" type="text" name="author" placeholder="search author">
-      <input id="title" type="text" name="title" placeholder="search title">
-      <select id="publishedAt" name="publishedAt">
-        <option value="" disabled selected >Published</option>
-        <option value="month">A Month ago</option>
-        <option value="week">A Week ago</option>
-        <option value="today">Today</option>
-      </select>
-      <input type="submit" value="Search" >
-    </form>
+  <body class="d-flex flex-column">
+    <div class="row justify-content-center align-items-center"> 
+    <div class="col-lg-6"> 
+      <h1>Search News</h1>
+      <form action="search_result" method="GET">
+        <p>What articles do you want to find?</p>
+        <div class="form-group mb-4">
+          <label>Author</label>
+          <input id="author" type="text" name="author" placeholder="type author" class="form-control">
+        </div>
+        <div class="form-group mb-4">
+          <label>Title</label>
+          <input id="title" type="text" name="title" placeholder="type title" class="form-control">
+        </div>
+
+        <div class="form-group mb-4">
+          <label>Published</label>
+          <select class="form-control" id="publishedAt" name="publishedAt">
+            <option value="month">A Month ago</option>
+            <option value="week">A Week ago</option>
+            <option value="today">Today</option>
+          </select>
+        </div>
+      </div>
+        <div class="text-center">
+          <input class="btn btn-dark w-50" type="submit" value="Search" >
+        </div>
+      </form>
+    </div>
   </body>
 </html>

@@ -4,12 +4,24 @@
     <title>Login Page </title>
     <link rel="stylesheet" href="/css/bootstrap.min.css" />
   </head>
-  <body>
-    <h1>Login Page</h1>
-    <form method="POST" action="loggedin">
-        <p>Username: <input id="username" type="text" name="username"/></p>
-        <p>Password: <input id="password" type="text" name="password"/></p>
-        <input type="submit" value="Login" />
-      </form>
+  <body class="d-flex flex-column"></body>
+    <div class="row justify-content-center align-items-center"> 
+      <div class="col-lg-6">
+        <h1>Login Page </h1>
+        <form method="POST" action="loggedin">
+            <div class="form-group mb-4">
+              <label>Username</label>
+              <input id="username" type="text" name="username" class="form-control" placeholder="Write username"/>
+            </div>
+            <div class="form-group mb-4">
+              <label>Password</label>
+              <input id="password" type="text" name="password" class="form-control" placeholder="Write password"/>
+            </div>
+            <div class="text-center">
+              <input class="btn btn-dark w-50" type="submit" value="Login" >
+            </div>
+          </form>
+      </div>
+    </div>
   </body>
 </html>
