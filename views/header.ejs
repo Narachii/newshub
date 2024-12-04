@@ -31,6 +31,14 @@
                 Find
               </a>
             </li>
+            <% if (typeof userSession != 'undefined') { %>
+              <li>
+                <a id="myNewsLink", href="/news/my_news/<%= userSession %>" class="nav-link">
+                  <svg class="bi d-block mx-auto mb-1" width="24" height="24"><use xlink:href="#grid"></use></svg>
+                  My News
+                </a>
+              </li>
+            <% } %>
           </ul>
         </div>
       </div>

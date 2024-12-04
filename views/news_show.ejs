@@ -3,7 +3,7 @@
   <head>
     <title>Welcome to </title>
     <link rel="stylesheet" href="/css/bootstrap.min.css" />
-    <%- include('header.ejs') %>
+    <%- include('header.ejs', { userSession: userId }) %>
     <% if (message) { %>
       <div class="alert alert-success" role="alert">
         <%= message %>
