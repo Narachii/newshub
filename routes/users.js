@@ -50,7 +50,7 @@ router.post('/registered', [
           }
           else {
             let message = 'Your account is successfully registered!'
-            return res.redirect('/?message=' + message)
+            return res.redirect('../?message=' + message)
           }
       })
   })
@@ -88,7 +88,7 @@ router.post('/loggedin', function (req, res, next) {
         // Save user session here, when login is successful
         req.session.userId = userId;
         let message = 'You are successfully logged in'
-        return res.redirect('/?message=' + message)
+        return res.redirect('../?message=' + message)
       }
       else {
         let errorMessage = 'Check your passowrd and try again'
@@ -104,7 +104,7 @@ router.get('/logout', redirectLogin, (req,res) => {
       return res.redirect('./')
     }
       let message = 'You are successfully logged out'
-      return res.redirect('/?message=' + message)
+      return res.redirect('../?message=' + message)
     })
 })
 
