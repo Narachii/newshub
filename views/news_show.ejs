@@ -3,6 +3,13 @@
   <head>
     <title>Welcome to </title>
     <link rel="stylesheet" href="/css/bootstrap.min.css" />
+    <%- include('header.ejs') %>
+    <% if (message) { %>
+      <div class="alert alert-success" role="alert">
+        <%= message %>
+      </div>
+    <% } %>
+
   </head>
   <body>
     <div class="container">
@@ -15,9 +22,9 @@
                   | By <%= article.author %>
               </p>
           </div>
-      
+
           <img src="<%= article.imageUrl %>" class="img-fluid" alt="Article Image">
-      
+
           <div class="p-4">
               <h2 class="font-weight-bold mb-3">Description</h2>
               <p><%= article.description %></p>
@@ -68,8 +75,8 @@
             <% }
           %>
               <% }) %>
-        
-          </div>          
+
+          </div>
         </div>
       </div>
     </div>

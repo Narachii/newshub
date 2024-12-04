@@ -159,11 +159,13 @@ router.post('/comments', redirectLogin, function(req, res, next) {
             next(err)
         }
     })
-   return res.redirect('./' + newsId)
+    let message = "Your comment is successfully posted!"
+    return res.redirect(`./${newsId}?message=${message}`)
 })
 
 router.get('/:id', redirectLogin, function(req, res, next) {
   const newsId = req.params.id;
+  let message = req.query.message
   let sqlquery = "SELECT * FROM news where id = ?"
   let article = []
   let loginUserComment = false;
@@ -186,7 +188,7 @@ router.get('/:id', redirectLogin, function(req, res, next) {
           loginUserComment = true
         }
       });
-      res.render("news_show.ejs", { article:article, comments:result, loginUserComment: loginUserComment, userId: req.session.userId })
+      res.render("news_show.ejs", { article:article, comments:result, loginUserComment: loginUserComment, userId: req.session.userId, message:message })
   })
 })
 
@@ -215,7 +217,8 @@ router.put('/comments', function(req, res, next) {
       if (err) {
         res.status(500).send("Something happend during the operation")
     } else {
-      res.redirect(`./${newsId}`);
+      let message = "Your comment is successfully updated!"
+      res.redirect(`./${newsId}?message=${message}`);
     }
   })
 })
@@ -244,7 +247,8 @@ router.delete('/comments/:id/', function(req, res, next) {
       if (err) {
       res.status(500).send("Something happend during the operation")
     } else {
-      res.redirect(`../${newsId}`);
+      let message = "Your comment is successfully deleted!"
+      res.redirect(`../${newsId}?message=${message}`);
     }
   })
 })
