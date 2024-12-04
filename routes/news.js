@@ -60,7 +60,7 @@ router.get('/search_result', redirectLogin, function (req, res, next) {
     params.push("%" + req.query.author + "%");
   }
 
-  if (typeof req.query.source !== 'undefined') {
+  if (typeof req.query.source !== 'undefined' && req.query.source !== '') {
     conditions.push("source_id = ?");
     params.push(req.query.source);
   }
@@ -68,6 +68,11 @@ router.get('/search_result', redirectLogin, function (req, res, next) {
   if (typeof req.query.title !== 'undefined') {
     conditions.push("title LIKE ?");
     params.push("%" + req.query.title + "%");
+  }
+
+  if (typeof req.query.description !== 'undefined') {
+    conditions.push("description LIKE ?");
+    params.push("%" + req.query.description + "%");
   }
 
   if (typeof req.query.publishedAt !== 'undefined') {
@@ -85,7 +90,7 @@ router.get('/search_result', redirectLogin, function (req, res, next) {
 
   let whereQueries = conditions.length ? conditions.join(' AND ') : '1'
     // Search the database
-  let sqlquery = "SELECT * FROM news WHERE " + whereQueries // query database to get all the books
+  let sqlquery = "SELECT * FROM news WHERE " + whereQueries + "LIMIT 30"// query database to get all the books
   // execute sql query
   db.query(sqlquery, params, (err, result) => {
       if (err) {
