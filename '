@@ -4,7 +4,7 @@
     <title>Login Page </title>
     <link rel="stylesheet" href="/css/bootstrap.min.css" />
 
-    <% if (message) { %>
+    <% if (!typeof message !== 'undefined') { %>
       <div class="alert alert-danger" role="alert">
         <%= message %>
       </div>
@@ -39,6 +39,7 @@
 
     <script>
       const forms = document.querySelectorAll('.needs-validation');
+      // Loop over them and prevent submission
       forms.forEach(function (form) {
         form.addEventListener('submit', function (event) {
           if (!form.checkValidity()) {

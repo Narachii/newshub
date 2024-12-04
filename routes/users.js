@@ -21,7 +21,8 @@ const redirectLogin = (req, res, next) => {
 }
 
 router.get('/register', function (req, res, next) {
-    res.render('register.ejs')
+    let errorMessage = req.query.message
+    res.render('register.ejs', {errorMessage:errorMessage})
 })
 
 router.post('/registered', [
@@ -34,8 +35,8 @@ router.post('/registered', [
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
-    console.log(errors)
-    return res.redirect('./register'); 
+    let errorMessage = errors.errors.map(error => error.path).join(',');
+    return res.redirect('./register?message=' + errorMessage)
   }
 
   const plainPassword = req.body.password
@@ -47,14 +48,17 @@ router.post('/registered', [
           if (err) {
               next(err)
           }
-          else
-            res.send('You account is succesfully registered! <a href='+'../'+'>Home</a>')
+          else {
+            let message = 'Your account is successfully registered!'
+            return res.redirect('/?message=' + message)
+          }
       })
   })
 })
 
 router.get('/loggedin', function (req, res, next) {
-    res.render('loggedin.ejs')
+  let message = req.query.message
+  res.render('loggedin.ejs', {message:message})
 })
 
 router.post('/loggedin', function (req, res, next) {
@@ -69,23 +73,26 @@ router.post('/loggedin', function (req, res, next) {
           next(err)
       }
     if (result.length == 0) {
-      return res.send('Check your passowrd and try again <a href='+'./loggedin'+'>Login</a> <a href='+'../'+'>Home</a>')
+      let errorMessage = 'Check your passowrd and try again'
+      return res.redirect('./loggedin?message=' + errorMessage)
     }
     hashedPassword = result[0].hashedPassword
     userId = result[0].id
 
     bcrypt.compare(plainPassword, hashedPassword, function(err, result) {
       if (err) {
-        console.log(err)
-        return res.send('Check youuserId passowrd and try again <a href='+'./loggedin'+'>Login</a> <a href='+'../'+'>Home</a>')
+        let errorMessage = 'Check your passowrd and try again'
+        return res.redirect('./loggedin?message=' + errorMessage)
       }
       else if (result == true) {
         // Save user session here, when login is successful
         req.session.userId = userId;
-        res.send('You succesfully loged in! <a href='+'../'+'>Home</a>')
+        let message = 'You are successfully logged in'
+        return res.redirect('/?message=' + message)
       }
       else {
-        res.send('Check your passowrd and try again <a href='+'./loggedin'+'>Login</a> <a href='+'../'+'>Home</a>')
+        let errorMessage = 'Check your passowrd and try again'
+        return res.redirect('./loggedin?message=' + errorMessage)
       }
     })
   })
@@ -96,7 +103,8 @@ router.get('/logout', redirectLogin, (req,res) => {
     if (err) {
       return res.redirect('./')
     }
-    res.send('you are now logged out. <a href='+'../'+'>Home</a>');
+      let message = 'You are successfully logged out'
+      return res.redirect('/?message=' + message)
     })
 })
 

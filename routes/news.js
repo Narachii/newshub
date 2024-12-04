@@ -53,6 +53,7 @@ router.get('/search_result', redirectLogin, function (req, res, next) {
   // TODO: valdidation
   let conditions = []
   let params = []
+  let message = req.query.message
 
   if (typeof req.query.author !== 'undefined') {
     conditions.push("author LIKE ?");
@@ -90,18 +91,19 @@ router.get('/search_result', redirectLogin, function (req, res, next) {
       if (err) {
           next(err)
       }
-      res.render("news_list.ejs", {newsList:result})
+      res.render("news_list.ejs", {newsList:result,message:message})
    })
 })
 
 router.get('/list', function(req, res, next) {
-    let sqlquery = "SELECT * FROM news" // query database to get all news
+    let message = req.query.message
+    let sqlquery = "SELECT * FROM news order by created_at desc limit 30" // query database to get all news
     // execute sql query
     db.query(sqlquery, (err, result) => {
         if (err) {
             next(err)
         }
-        res.render("news_list.ejs", {newsList:result})
+        res.render("news_list.ejs", {newsList:result,message:message})
      })
 })
 
@@ -130,7 +132,6 @@ router.get('/fetch_news', redirectLogin, function(req, res, next) {
     pageSize: 10,
   }).then(response => {
 
-    // TODO: Add error handling, source column
     response.articles.forEach(function(article) {
       let sqlquery = `
         INSERT INTO news (author, title, description, url, imageUrl, published_at, content, source_id)
@@ -143,7 +144,8 @@ router.get('/fetch_news', redirectLogin, function(req, res, next) {
         }
     })
   })
-      res.redirect('./search_result?' + 'source=' + sourceId)
+      let message = "Your news is successfully imported!!"
+      res.redirect('./list?' + 'source=' + sourceId + '&message=' + message)
   })
 })
 

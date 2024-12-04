@@ -3,6 +3,11 @@
   <head>
     <link rel="stylesheet" href="/css/bootstrap.min.css" />
     <%- include('header.ejs') %>
+    <% if (message) { %>
+      <div class="alert alert-success" role="alert">
+        <%= message %>
+      </div>
+    <% } %>
   </head>
   <body>
     <div class="container">
