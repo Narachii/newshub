@@ -3,31 +3,51 @@
   <head>
     <title>Register for </title>
     <link rel="stylesheet" href="/css/bootstrap.min.css" />
+    <% if (errorMessage) { %>
+      <div class="alert alert-danger" role="alert">
+        Invalid request. Please check <%= errorMessage %> field(s)
+      </div>
+    <% } %>
   </head>
   <body class="d-flex flex-column">
     <div class="row justify-content-center align-items-center"> 
       <div class="col-lg-6">
         <h1>Register </h1>
-        <form method="POST" action="registered">
+        <form method="POST" action="registered" class="needs-validation" novalidate>
             <div class="form-group mb-4">
               <label>First name</label>
-              <input id="first" type="text" name="first" class="form-control" placeholder="Write fist name"/>
+              <input id="first" type="text" name="first" class="form-control" placeholder="Write fist name" required/>
+              <div class="invalid-feedback">
+                Please enter First name
+              </div>
             </div>
             <div class="form-group mb-4">
               <label>Last name</label>
-              <input id="last" type="text" name="last" class="form-control" placeholder="Write last name"/>
+              <input id="last" type="text" name="last" class="form-control" placeholder="Write last name" required/>
+              <div class="invalid-feedback">
+                Please enter Last name
+              </div>
             </div>
             <div class="form-group mb-4">
               <label>Email</label>
-              <input id="email" type="text" name="email" class="form-control" placeholder="test@mail.com"/>
+              <input id="email" type="text" name="email" class="form-control" placeholder="test@mail.com" required/>
+              <div class="invalid-feedback">
+                Please enter valid email
+              </div>
             </div>
             <div class="form-group mb-4">
               <label>Username</label>
-              <input id="username" type="text" name="username" class="form-control" placeholder="Write username"/>
+              <input id="username" type="text" name="username" class="form-control" placeholder="Write username" required/>
             </div>
+              <div class="invalid-feedback">
+                Please enter username
+              </div>
             <div class="form-group mb-4">
               <label>Password</label>
-              <input id="password" type="text" name="password" class="form-control" placeholder="Write password with minimum 4 characters"/>
+              <input id="password" type="text" name="password" class="form-control" placeholder="Write password with minimum 4 characters" required/>
+              <div class="invalid-feedback">
+                Please enter valid password
+              </div>
             </div>
             <div class="text-center">
               <input class="btn btn-dark w-50" type="submit" value="Register" >
@@ -35,5 +55,21 @@
           </form>
       </div>
     </div>
+
+    <script>
+      const forms = document.querySelectorAll('.needs-validation');
+      forms.forEach(function (form) {
+        form.addEventListener('submit', function (event) {
+          if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+
+          form.classList.add('was-validated');  
+
+        }, false);
+      });
+    </script>
+    <%- include('footer.ejs') %>
   </body>
 </html>

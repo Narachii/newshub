@@ -53,6 +53,7 @@ router.get('/search_result', redirectLogin, function (req, res, next) {
   // TODO: valdidation
   let conditions = []
   let params = []
+  let message = req.query.message
 
   if (typeof req.query.author !== 'undefined') {
     conditions.push("author LIKE ?");
@@ -90,18 +91,19 @@ router.get('/search_result', redirectLogin, function (req, res, next) {
       if (err) {
           next(err)
       }
-      res.render("news_list.ejs", {newsList:result})
+      res.render("news_list.ejs", {newsList:result,message:message})
    })
 })
 
 router.get('/list', function(req, res, next) {
-    let sqlquery = "SELECT * FROM news" // query database to get all news
+    let message = req.query.message
+    let sqlquery = "SELECT * FROM news order by created_at desc limit 30" // query database to get all news
     // execute sql query
     db.query(sqlquery, (err, result) => {
         if (err) {
             next(err)
         }
-        res.render("news_list.ejs", {newsList:result})
+        res.render("news_list.ejs", {newsList:result,message:message})
      })
 })
 
@@ -130,7 +132,6 @@ router.get('/fetch_news', redirectLogin, function(req, res, next) {
     pageSize: 10,
   }).then(response => {
 
-    // TODO: Add error handling, source column
     response.articles.forEach(function(article) {
       let sqlquery = `
         INSERT INTO news (author, title, description, url, imageUrl, published_at, content, source_id)
@@ -143,7 +144,8 @@ router.get('/fetch_news', redirectLogin, function(req, res, next) {
         }
     })
   })
-      res.redirect('./search_result?' + 'source=' + sourceId)
+      let message = "Your news is successfully imported!!"
+      res.redirect('./list?' + 'source=' + sourceId + '&message=' + message)
   })
 })
 
@@ -157,11 +159,13 @@ router.post('/comments', redirectLogin, function(req, res, next) {
             next(err)
         }
     })
-   return res.redirect('./' + newsId)
+    let message = "Your comment is successfully posted!"
+    return res.redirect(`./${newsId}?message=${message}`)
 })
 
 router.get('/:id', redirectLogin, function(req, res, next) {
   const newsId = req.params.id;
+  let message = req.query.message
   let sqlquery = "SELECT * FROM news where id = ?"
   let article = []
   let loginUserComment = false;
@@ -184,7 +188,7 @@ router.get('/:id', redirectLogin, function(req, res, next) {
           loginUserComment = true
         }
       });
-      res.render("news_show.ejs", { article:article, comments:result, loginUserComment: loginUserComment, userId: req.session.userId })
+      res.render("news_show.ejs", { article:article, comments:result, loginUserComment: loginUserComment, userId: req.session.userId, message:message })
   })
 })
 
@@ -213,7 +217,8 @@ router.put('/comments', function(req, res, next) {
       if (err) {
         res.status(500).send("Something happend during the operation")
     } else {
-      res.redirect(`./${newsId}`);
+      let message = "Your comment is successfully updated!"
+      res.redirect(`./${newsId}?message=${message}`);
     }
   })
 })
@@ -242,7 +247,8 @@ router.delete('/comments/:id/', function(req, res, next) {
       if (err) {
       res.status(500).send("Something happend during the operation")
     } else {
-      res.redirect(`../${newsId}`);
+      let message = "Your comment is successfully deleted!"
+      res.redirect(`../${newsId}?message=${message}`);
     }
   })
 })

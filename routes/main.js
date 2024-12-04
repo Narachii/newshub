@@ -4,12 +4,13 @@ const router = express.Router()
 
 // Handle our routes
 router.get('/',function(req, res, next){
+  let message = req.query.message
   let sqlquery = "SELECT * FROM news order by published_at desc LIMIT 15"
   db.query(sqlquery, (err, result) => {
       if (err) {
           next(err)
       }
-      res.render('index.ejs', {userSession:req.session.userId, latestNews:result})
+      res.render('index.ejs', {userSession:req.session.userId, latestNews:result, message:message})
    })
 
 })
