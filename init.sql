@@ -22,19 +22,32 @@ CREATE TABLE IF NOT EXISTS users (
     PRIMARY KEY(id)
 );
 
+# Create the source table
+CREATE TABLE IF NOT EXISTS source (
+  id int NOT NULL AUTO_INCREMENT,
+  name varchar(50) NOT NULL,
+  PRIMARY KEY(id),
+
+  CONSTRAINT unique_name UNIQUE (name)
+);
+
 # Create the news
 CREATE TABLE IF NOT EXISTS news (
   id int NOT NULL AUTO_INCREMENT,
-  author varchar(50),
+  author varchar(100),
   title varchar(255) NOT NULL,
   description text NOT NULL,
   content text NOT NULL,
+  source_id int NOT NULL,
   url text,
   imageUrl text,
   published_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY(id)
+  PRIMARY KEY(id),
+
+  FOREIGN KEY (source_id) REFERENCES source(id),
+  UNIQUE KEY unique_author_title_source (title, author, source_id)
 );
 
 # Create the comments

@@ -4,6 +4,7 @@ const router = express.Router()
 const NewsAPI = require('newsapi');
 const newsapi = new NewsAPI(process.env.NEWS_API_KEY);
 
+
 const redirectLogin = (req, res, next) => {
   if (!req.session.userId ) {
     // redirect to the login page
@@ -16,8 +17,36 @@ const redirectLogin = (req, res, next) => {
   }
 }
 
-router.get('/search',function(req, res, next){
-    res.render("search.ejs")
+router.get('/import_source', function(req,res,next) {
+  newsapi.v2.sources({
+    language: req.query.language,
+  }).then(response => {
+    console.log(response)
+    response.sources.forEach(function(source) {
+      let sqlquery = `
+        INSERT INTO source (name)
+        VALUES (?)
+    `;
+     let newrecord = [source.id]
+    db.query(sqlquery, newrecord, (err, result) => {
+        if (err) {
+            next(err)
+        }
+    })
+  })
+      res.send(response)
+  })
+});
+
+
+router.get('/search',function(req, res, next) {
+  let sourceQuery = "SELECT source.id as id, source.name as name FROM source inner join news on news.source_id = source.id group by source.id, source.name"
+  db.query(sourceQuery, (err, result) => {
+      if (err) {
+          next(err)
+      }
+      res.render("search.ejs", {sources:result})
+  });
 })
 
 router.get('/search_result', redirectLogin, function (req, res, next) {
@@ -28,6 +57,11 @@ router.get('/search_result', redirectLogin, function (req, res, next) {
   if (typeof req.query.author !== 'undefined') {
     conditions.push("author LIKE ?");
     params.push("%" + req.query.author + "%");
+  }
+
+  if (typeof req.query.source !== 'undefined') {
+    conditions.push("source_id = ?");
+    params.push(req.query.source);
   }
 
   if (typeof req.query.title !== 'undefined') {
@@ -72,35 +106,44 @@ router.get('/list', function(req, res, next) {
 })
 
 router.get('/fetch', function(req, res, next) {
-  res.render('news_fetch.ejs')
+  let sourceQuery = "SELECT id, name FROM source"
+  db.query(sourceQuery, (err, result) => {
+      if (err) {
+          next(err)
+      }
+      res.render("news_fetch.ejs", {sources:result})
+  });
 })
 
 router.get('/fetch_news', redirectLogin, function(req, res, next) {
   let keyword = req.query.keyword
-  let source = req.query.source
+  let source = req.query.source.split(":")
+  let sourceName = source[0]
+  let sourceId = source[1]
   // To query /v2/everything
   // You must include at least one q, source, or domain
   newsapi.v2.everything({
     q: keyword,
-    sources: source,
+    sources: sourceName,
     language: 'en',
     sortBy: 'relevancy',
     pageSize: 10,
   }).then(response => {
+
     // TODO: Add error handling, source column
     response.articles.forEach(function(article) {
       let sqlquery = `
-        INSERT INTO news (author, title, description, url, imageUrl, published_at, content)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO news (author, title, description, url, imageUrl, published_at, content, source_id)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `;
-     let newrecord = [article.author, article.title, article.description, article.url, article.urlToImage, new Date(article.publishedAt), article.content]
+     let newrecord = [article.author, article.title, article.description, article.url, article.urlToImage, new Date(article.publishedAt), article.content, sourceId]
     db.query(sqlquery, newrecord, (err, result) => {
         if (err) {
             next(err)
         }
     })
   })
-      res.send('articles are added to database')
+      res.redirect('./search_result?' + 'source=' + sourceId)
   })
 })
 
@@ -108,9 +151,6 @@ router.post('/comments', redirectLogin, function(req, res, next) {
   const userId = req.session.userId
   const newsId  = req.body.news_id
   const content = req.body.content
-  console.log("userId:", userId)
-  console.log("newsId:", newsId)
-  console.log("content:", content)
   let sqlquery = "INSERT INTO comments (user_id, news_id, content) VALUES (?, ?, ?)"
     db.query(sqlquery, [userId, newsId, content], (err, result) => {
         if (err) {

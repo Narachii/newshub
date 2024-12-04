@@ -18,11 +18,12 @@
         </div>
         <div class="form-group mb-4">
           <label>Source</label>
-          <select id="source" name="source" class="form-control">
-            <option value="bbc-news">BBC</option>
-            <option value="the-verge">TheVerge</option>
+          <select class="form-control" id="source" name="source">
+          <% sources.forEach(function(source) { %>
+          <option value="<%= source.name %>:<%=source.id%>"><%= source.name %></option>
+          <% }) %>
           </select>
-      </div>
+        </div>
       <div class="text-center">
         <input type="submit" value="Import" class="btn btn-dark w-50">
       </div>
