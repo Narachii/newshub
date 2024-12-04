@@ -100,6 +100,21 @@ router.get('/search_result', redirectLogin, function (req, res, next) {
    })
 })
 
+router.get('/my_news/:id', redirectLogin, function(req, res, next) {
+    const userId = req.params.id
+    if (userId != req.session.userId) {
+          return res.status(401).send("The operation is unauthorized")
+    }
+    let sqlquery = "SELECT news.*, comments.content as comment FROM news inner join comments on comments.news_id = news.id where comments.user_id = ? ORDER BY comments.updated_at DESC LIMIT 30"
+    // execute sql query
+    db.query(sqlquery, [userId], (err, result) => {
+        if (err) {
+            next(err)
+        }
+        res.render("my_news.ejs", {newsList:result})
+     })
+})
+
 router.get('/list', function(req, res, next) {
     let message = req.query.message
     let sqlquery = "SELECT * FROM news order by created_at desc limit 30" // query database to get all news

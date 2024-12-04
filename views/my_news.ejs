@@ -1,0 +1,39 @@
+<!doctype html>
+<html>
+  <head>
+    <link rel="stylesheet" href="/css/bootstrap.min.css" />
+    <%- include('header.ejs') %>
+  </head>
+  <body>
+    <div class="container">
+      <div class="row">
+        <h1 class="text-center">My news</h1>
+        <% if (newsList.length != 0) { %>
+          <% newsList.forEach(function(article) { %>
+            <div class="col-lg-4 col-md-6 mb-3">
+              <a href="../<%= article.id %>" class="text-decoration-none text-reset">
+                <div class="card mb-4 h-100">
+                    <img src=<%= article.imageUrl %> class="card-img-top" alt="News Image">
+                    <div class="card-body">
+                      <h5 class="card-title"><%= article.title %></h5>
+                      <p class="card-text"><%= article.description %></p>
+                      <p class="card-text">Your Comment: <%= article.comment %></p>
+                    </div>
+                </div>
+              </a>
+            </div>
+          <% }) %>
+      </div>
+        <% } else { %>
+          <div class="mt-3">
+            <h5 class="text-center"> You have not commented to any news yet</h5>
+            <h5 class="text-center">Find your favorite news and post your comment!</h5>
+            <p class="text-center">Your commented news will be listed in this page</p>
+          </div>
+
+        <% } %>
+
+   </div>
+  </body>
+  <%- include('footer.ejs') %>
+</html>
