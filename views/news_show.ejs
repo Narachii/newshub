@@ -5,46 +5,75 @@
     <link rel="stylesheet" href="/css/bootstrap.min.css" />
   </head>
   <body>
-    <h1>Here are the new shows page </h1>
-    <ul>
-        <li>title: <%= article.title %></li>
-        <li>author: <%= article.author %> </li>
-        <li>description: <%=article.description %> </li>
-        <li>content: <%=article.content %> </li>
-        <li>url: <%=article.url %> </li>
-        <li>image: <%=article.imageUrl %> </li>
-        <li>publishedAt: <%=article.published_at %> </li>
-    </ul>
-    <h3> Comment Section </h3>
-    <ul>
-      <% comments.forEach(function(comment) { %>
-          <li>userName: <%= comment.userName %> </li>
-          <li>content: <%= comment.content %> </li>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-10"> 
+          <div class="p-4"> 
+              <h1 class="font-weight-bold mb-3"><%= article.title %></h1>
+              <p class="text-muted small">
+                  Updated at: <%= new Date(article.updated_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) %>
+                  | By <%= article.author %>
+              </p>
+          </div>
+      
+          <img src="<%= article.imageUrl %>" class="img-fluid" alt="Article Image">
+      
+          <div class="p-4">
+              <h2 class="font-weight-bold mb-3">Description</h2>
+              <p><%= article.description %></p>
+              <h3 class="font-weight-bold mb-3">Content</h3>
+              <p><%= article.content %></p>
 
-          <% if (comment.userId == userId) { %>
-          <form id="editForm-<%= comment.id %>" method="POST" action="./comments?_method=PUT">
-    <input type="hidden" name="news_id" value="<%= article.id %>" />
-    <input type="hidden" name="id" value="<%= comment.id %>" />
-    <textarea name="content" rows="4" cols="50"><%= comment.content %></textarea><br><br>
-    <button type="submit">Update Comment</button>
-  </form>
-  <form id="deleteForm-<%= comment.id %>" method="POST" action="./comments/<%= comment.id %>?_method=DELETE">
-    <input type="hidden" name="news_id" value="<%= article.id %>" />
-    <button type="submit">DELETE Comment</button>
-  </form>
-  <% }
-  %>
-      <% }) %>
-    </ul>
+              <p><a href="<%= article.url %>" target="_blank">Read the full article</a></p> 
+          </div>
+        </div>
+        <div class="col-lg-10">
+          <div class="p-4">
+            <h3> Comments</h3>
+            <% if (!loginUserComment) { %>
+              <div>
+                <form method="POST" action="comments">
+                  <input type="hidden" name="news_id" value="<%= article.id %>" />
+                  <label for="content" class="form-label">Your Comment</label><br>
+                  <textarea id="content" name="content" rows="4" cols="50" placeholder="write your comment" class="form-control"></textarea><br>
+                  <input class="btn btn-dark" type="submit" value="Post Comment"/>
+                </form>
+                <hr class="mt-2 mb-3"/>  
+              </div>
+            <% } %>
 
-    <% if (!loginUserComment) { %>
-      <form method="POST" action="comments">
-        <input type="hidden" name="news_id" value="<%= article.id %>" />
-        <label for="content">Comment:</label><br>
-        <textarea id="content" name="content" rows="4" cols="50" placeholder="write your comment"></textarea><br>
-        <input type="submit" value="Post Comment"/>
-      </form>
-      </body>
-    <% } %>
+              <% comments.forEach(function(comment) { %>
+                  <div>
+                    <p class="fs-3"> <%= comment.content %> </p>
+                    <p class="text-muted small"> By - <%= comment.userName %> </p>
+                    <hr class="mt-2 mb-3"/>
+                  </div>
+                  <% if (comment.userId == userId) { %>
+                  <div>
+                    <form id="editForm-<%= comment.id %>" method="POST" action="./comments?_method=PUT">
+                      <input type="hidden" name="news_id" value="<%= article.id %>" />
+                      <input type="hidden" name="id" value="<%= comment.id %>" />
+                      <label for="content" class="form-label">Edit Your Comment</label><br>
+                      <textarea name="content" rows="4" cols="50" class="form-control"><%= comment.content %></textarea><br><br>
+                      <div class="d-flex justify-content-between align-items-start">
+                        <button class="btn btn-dark" type="submit">Edit Comment</button>
+                      </form>
+                      <form id="deleteForm-<%= comment.id %>" method="POST" action="./comments/<%= comment.id %>?_method=DELETE">
+                        <input type="hidden" name="news_id" value="<%= article.id %>" />
+                        <button class="btn btn-danger" type="submit">DELETE Comment</button>
+                    </div>
+                    </form>
+                    <hr class="mt-2 mb-3"/>
+                  </div>
+            <% }
+          %>
+              <% }) %>
+        
+          </div>          
+        </div>
+      </div>
+    </div>
+  </body>
+
     <h3><a href='../'>Home </a></h3>
 </html>

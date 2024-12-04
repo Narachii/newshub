@@ -4,7 +4,18 @@ const router = express.Router()
 
 // Handle our routes
 router.get('/',function(req, res, next){
-    res.render('index.ejs', {userSession:req.session.userId})
+  let sqlquery = "SELECT * FROM news order by published_at desc LIMIT 15"
+  db.query(sqlquery, (err, result) => {
+      if (err) {
+          next(err)
+      }
+      res.render('index.ejs', {userSession:req.session.userId, latestNews:result})
+   })
+
+})
+
+router.get('/about',function(req, res, next){
+    res.render('about.ejs')
 })
 
 // Export the router object so index.js can access it

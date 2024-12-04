@@ -3,17 +3,29 @@
   <head>
     <title>Fetch News</title>
     <link rel="stylesheet" href="/css/bootstrap.min.css" />
+    <%- include('header.ejs') %>
   </head>
-  <body>
-    <h1>Fetch News</h1>
-    <form action="fetch_news" method="GET">
-      <p>What book do you want?</p>
-      <input id="keywords" type="text" name="keywords">
-      <select id="source" name="source">
-        <option value="bbc-news">BBC</option>
-        <option value="the-verge">TheVerge</option>
-      </select>
-      <input type="submit" value="Fetch" >
+  <body class="d-flex flex-column">
+    <div class="row justify-content-center align-items-center"> 
+    <div class="col-lg-6"> 
+      <h1>Import News</h1>
+      <form action="fetch_news" method="GET">
+        <h5>Looking for latest news? </h5> 
+        <p>Import latest articles from various news medias with any keywords</p>
+        <div class="form-group mb-4">
+          <label>Keyword</label>
+          <input id="keywords" type="text" name="keywords" class="form-control" placeholder="Write keyword">
+        </div>
+        <div class="form-group mb-4">
+          <label>Source</label>
+          <select id="source" name="source" class="form-control">
+            <option value="bbc-news">BBC</option>
+            <option value="the-verge">TheVerge</option>
+          </select>
+      </div>
+      <div class="text-center">
+        <input type="submit" value="Import" class="btn btn-dark w-50">
+      </div>
     </form>
   </body>
 </html>

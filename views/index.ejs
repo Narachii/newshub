@@ -1,19 +1,48 @@
 <!doctype html>
 <html>
   <head>
-    <title>Welcome to Newshub</title>
     <link rel="stylesheet" href="/css/bootstrap.min.css" />
+    <%- include('header.ejs') %>
+    <% if (!userSession) { %>
+      <div class="px-3 py-2 border-bottom mb-3">
+        <div class="container d-flex flex-wrap justify-content-center">
+          <div class="text-end">
+            <a href="/users/loggedin" class="btn btn-light text-dark me-2">Login</button>
+            <a href="/users/register" class="btn btn-primary"> Sign-up</a>
+          </div>
+        </div>
+      </div>
+    <% } else { %>
+      <div class="px-3 py-2 border-bottom mb-3">
+        <div class="container d-flex flex-wrap justify-content-center">
+          <div class="text-end">
+            <a href="/users/logout" class="btn btn-light text-dark me-2">Logout</a>
+          </div>
+        </div>
+      </div>
+    <% } %>
   </head>
   <body>
-    <h1>Welcome !!</h1>
-    <p><a href="news/list">News list</a></p>
-    <p><a href="news/fetch">Fetch News</a></p>
-    <p><a href="news/search">Search News</a></p>
-    <% if (!userSession) { %>
-    <p><a href="users/register">Register with us</a></p>
-    <p><a href="users/loggedin">User Signin</a></p>
-    <% } else { %>
-    <p><a href="users/logout">Logout</a></p>
-    <% } %>
+
+    <div class="container">
+      <h1 class="text-center">News Hub</h1>
+      <div class="row">
+        <% latestNews.forEach(function(article) { %>
+          <div class="col-lg-4 col-md-6 mb-3">
+            <a href="news/<%= article.id %>" class="text-decoration-none text-reset">
+              <div class="card mb-4 h-100">
+                  <img src=<%= article.imageUrl %> class="card-img-top" alt="News Image">
+                  <div class="card-body">
+                    <h5 class="card-title"><%= article.title %></h5>
+                    <p class="card-text"><%= article.description %></p>
+                    <p class="card-text"><small class="text-muted">By <%= article.author %> - <%= new Date(article.published_at).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })%></small></p>
+                  </div>
+              </div>
+            </a>
+          </div>
+        <% }) %>
+      </div>
+   </div>
+  <%- include('footer.ejs') %>
   </body>
 </html>
