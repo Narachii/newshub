@@ -1,11 +1,20 @@
 <!doctype html>
 <html>
   <head>
-    <title>Welcome to Newshub</title>
     <link rel="stylesheet" href="/css/bootstrap.min.css" />
+    <%- include('header.ejs') %>
   </head>
   <body>
-    <h1>Welcome !!</h1>
+      <h1 class='text-center mt-3'>Welcome to News Hub</h1>
+      <div class="row">
+        <div class="col-md-6 offset-md-3">
+          <p>Here, you can find your favorite news headlines from a variety of sources.</p>
+          <p>Read the latest news, share your thoughts by posting comments, and engage in discussions with other users.</p>
+          <p>Looking for a specific article? Our powerful search function can help you find exactly what you need.</p>
+          <p>You can even import the latest news from various sources to stay up-to-date.</p>
+          <p>Enjoy exploring the world of news and satisfy your curiosity!</p>
+        </div>
+    </div>
   </body>
-  <h3><a href='../'>Home </a></h3>
+  <%- include('footer.ejs') %>
 </html>
