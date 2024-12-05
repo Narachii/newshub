@@ -13,6 +13,7 @@
     <div class="container">
       <div class="row">
         <h1 class="text-center mt-3">News List </h1>
+        <p class="text-center mt-2">Found(<%= newsList.length %>) articles</h1>
         <% newsList.forEach(function(article) { %>
           <div class="col-lg-4 col-md-6 mb-3">
             <a href="./<%= article.id %>" class="text-decoration-none text-reset">
