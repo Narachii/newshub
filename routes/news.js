@@ -18,10 +18,10 @@ const redirectLogin = (req, res, next) => {
 }
 
 router.get('/import_source', function(req,res,next) {
+  console.log(`GET /news/import_source is called`)
   newsapi.v2.sources({
     language: req.query.language,
   }).then(response => {
-    console.log(response)
     response.sources.forEach(function(source) {
       let sqlquery = `
         INSERT INTO source (name)
@@ -50,32 +50,31 @@ router.get('/search',function(req, res, next) {
 })
 
 router.get('/search_result', redirectLogin, function (req, res, next) {
-  // TODO: valdidation
   let conditions = []
   let params = []
   let message = req.query.message
 
-  if (typeof req.query.author !== 'undefined') {
+  if (req.query.author !== '') {
     conditions.push("author LIKE ?");
     params.push("%" + req.query.author + "%");
   }
 
-  if (typeof req.query.source !== 'undefined' && req.query.source !== '') {
+  if (req.query.source !== '') {
     conditions.push("source_id = ?");
     params.push(req.query.source);
   }
 
-  if (typeof req.query.title !== 'undefined') {
+  if (req.query.title !== '') {
     conditions.push("title LIKE ?");
     params.push("%" + req.query.title + "%");
   }
 
-  if (typeof req.query.description !== 'undefined') {
+  if (typeof req.query.description !== '') {
     conditions.push("description LIKE ?");
     params.push("%" + req.query.description + "%");
   }
 
-  if (typeof req.query.publishedAt !== 'undefined') {
+  if (typeof req.query.publishedAt !== '') {
     let date = new Date();
     if (req.query.publishedAt == "today") {
       date.setDate(date.getDate() - 1)
@@ -89,9 +88,9 @@ router.get('/search_result', redirectLogin, function (req, res, next) {
   }
 
   let whereQueries = conditions.length ? conditions.join(' AND ') : '1'
-    // Search the database
   let sqlquery = "SELECT * FROM news WHERE " + whereQueries + "LIMIT 30"// query database to get all the books
-  // execute sql query
+  console.log(`GET /news/search_result is called by userId: ${req.session.user_id}, query: ${sqlquery}, params: ${params}`)
+
   db.query(sqlquery, params, (err, result) => {
       if (err) {
           next(err)
@@ -111,6 +110,7 @@ router.get('/my_news/:id', redirectLogin, function(req, res, next) {
         if (err) {
             next(err)
         }
+        console.log(`GET /my_news/${userId} is called`)
         res.render("my_news.ejs", {newsList:result})
      })
 })
@@ -142,6 +142,8 @@ router.get('/fetch_news', redirectLogin, function(req, res, next) {
   let source = req.query.source.split(":")
   let sourceName = source[0]
   let sourceId = source[1]
+  console.log(`GET /news/fetch_news is called`)
+  console.log(`Import -- keyword: ${keyword}, source: ${source}`)
   // To query /v2/everything
   // You must include at least one q, source, or domain
   newsapi.v2.everything({
@@ -164,6 +166,7 @@ router.get('/fetch_news', redirectLogin, function(req, res, next) {
         }
     })
   })
+      console.log(`News records for userId: ${req.session.userId} are created`)
       let message = "Your news is successfully imported!!"
       res.redirect('./list?' + 'source=' + sourceId + '&message=' + message)
   })
@@ -179,6 +182,7 @@ router.post('/comments', redirectLogin, function(req, res, next) {
             next(err)
         }
     })
+    console.log(`New comment is created by userId: ${req.session.userId}, newsId: ${newsId}`)
     let message = "Your comment is successfully posted!"
     return res.redirect(`./${newsId}?message=${message}`)
 })
@@ -238,6 +242,7 @@ router.put('/comments', function(req, res, next) {
         res.status(500).send("Something happend during the operation")
     } else {
       let message = "Your comment is successfully updated!"
+      console.log(`commnedId: ${commentId} is updated`)
       res.redirect(`./${newsId}?message=${message}`);
     }
   })
@@ -268,6 +273,7 @@ router.delete('/comments/:id/', function(req, res, next) {
       res.status(500).send("Something happend during the operation")
     } else {
       let message = "Your comment is successfully deleted!"
+      console.log(`commnedId: ${commentId} is deleted`)
       res.redirect(`../${newsId}?message=${message}`);
     }
   })
