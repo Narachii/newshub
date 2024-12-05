@@ -5,7 +5,7 @@ const router = express.Router()
 // Handle our routes
 router.get('/',function(req, res, next){
   let message = req.query.message
-  let sqlquery = "SELECT * FROM news order by published_at desc LIMIT 15"
+  let sqlquery = "SELECT * FROM news order by published_at desc LIMIT 30"
   db.query(sqlquery, (err, result) => {
       if (err) {
           next(err)

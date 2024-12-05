@@ -117,7 +117,7 @@ router.get('/my_news/:id', redirectLogin, function(req, res, next) {
 
 router.get('/list', function(req, res, next) {
     let message = req.query.message
-    let sqlquery = "SELECT * FROM news order by created_at desc limit 30" // query database to get all news
+    let sqlquery = "SELECT * FROM news order by created_at desc limit 50" // query database to get all news
     // execute sql query
     db.query(sqlquery, (err, result) => {
         if (err) {
