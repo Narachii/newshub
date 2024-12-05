@@ -11,11 +11,8 @@ const { check, validationResult } = require('express-validator');
 const redirectLogin = (req, res, next) => {
   if (!req.session.userId ) {
     // redirect to the login page
-    console.log("user does not have userId in session")
-    console.log("Session:", req.session)
     res.redirect('./loggedin')
   } else {
-      console.log("user has userId in session")
       next (); // move to the next middleware function
   }
 }
@@ -50,6 +47,7 @@ router.post('/registered', [
           }
           else {
             let message = 'Your account is successfully registered!'
+            console.log(`New Account is created: ${req.body.username}`)
             return res.redirect('../?message=' + message)
           }
       })
@@ -87,6 +85,7 @@ router.post('/loggedin', function (req, res, next) {
       else if (result == true) {
         // Save user session here, when login is successful
         req.session.userId = userId;
+        console.log(`${userId} is signed in`)
         let message = 'You are successfully logged in'
         return res.redirect('../?message=' + message)
       }
@@ -99,6 +98,7 @@ router.post('/loggedin', function (req, res, next) {
 })
 
 router.get('/logout', redirectLogin, (req,res) => {
+  console.log(`${req.session.userId} is signed out`)
   req.session.destroy(err => {
     if (err) {
       return res.redirect('./')
