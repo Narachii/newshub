@@ -267,8 +267,8 @@ router.delete('/comments/:id/', function(req, res, next) {
       }
   })
 
-  const updateQuery = "DELETE from comments WHERE id = ?"
-    db.query(updateQuery, [commentId], (err, result) => {
+  const deleteQuery = "DELETE from comments WHERE id = ?"
+    db.query(deleteQuery, [commentId], (err, result) => {
       if (err) {
       res.status(500).send("Something happend during the operation")
     } else {

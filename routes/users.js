@@ -109,27 +109,13 @@ router.get('/logout', redirectLogin, (req,res) => {
     })
 })
 
-router.get('/developer/:id', redirectLogin, (req,res) => {
-  let userId = req.params.id
-
-  if (userId != req.session.userId) {
-    return res.status(401).send("The operation is unauthorized")
-  }
-  let sqlquery = "SELECT * FROM users where id = ?"
-
-  db.query(sqlquery, [userId], (err, result) => {
-      if (err) {
-          next(err)
-      } else {
-        if (result.length == 0) {
-          return res.status(404).send("Bad Request")
-        }
-      }
-  });
+router.get('/developer', redirectLogin, (req,res) => {
+  let userId = req.session.userId
 
   let originalString = userId + process.env.SALT
   const apiKey = SHA256(originalString).toString();
-  res.send(`Your userId ${userId} Your API KEY: ${apiKey} <a href="../../">Home</>`)
+  return res.render("developer.ejs", {apiKey: apiKey})
+  res.send(`Your API KEY: ${apiKey} <a href="../../">Home</>`)
 });
 
 // Export the router object so index.js can access it

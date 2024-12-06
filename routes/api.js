@@ -2,13 +2,26 @@
 const express = require("express")
 const router = express.Router()
 const SHA256 = require("crypto-js/sha256");
+const apiResponse = { "statusCode": "", "result": []}
 
-
-router.get('/search', function(req, res, next) {
+router.get('/search', async function(req, res, next) {
   let conditions = []
   let params = []
-  let userId = req.query.userId
-  let apiKey = req.query.apiKey
+
+  // User Check
+  const userName = req.query.userName
+  const apiKey = req.query.apiKey
+  let userQuery = "SELECT * FROM users where userName = ?"
+  const [users] = await db.promise().query(userQuery, [userName])
+  if (users.length == 0) {
+    updateResponse(404, "The user not found")
+    return res.json(apiResponse)
+  }
+  let userId = users[0].id
+  if (!isUserValid(userId, apiKey)) {
+    updateResponse(401, "unauthorized user")
+    return res.json(apiResponse)
+  }
 
   if (!isUserValid(userId, apiKey)) {
     return res.json("Invalid user")
@@ -57,65 +70,204 @@ router.get('/search', function(req, res, next) {
   db.query(sqlquery, params, (err, result) => {
       if (err) {
           next(err)
-          res.json(err)
+          updateResponse(500, err)
+          res.json(apiResponse)
       }
-      res.json(result)
+      updateResponse(200, result)
+      return res.json(apiResponse)
    })
 })
 
-// TODO:
-// get / post / delete comments
-router.post('/comments', function(req, res, next) {
+router.get('/comments', async function(req, res, next) {
+  // User Check
+  const userName = req.query.userName
+  const apiKey = req.query.apiKey
+  let userQuery = "SELECT * from users where userName = ?"
+  const [users] = await db.promise().query(userQuery, [userName])
+  if (users.length == 0) {
+    updateResponse(404, "The user not found")
+    return res.json(apiResponse)
+  }
+  let userId = users[0].id
+  if (!isUserValid(userId, apiKey)) {
+    updateResponse(401, " unauthorized user")
+    return res.json(apiResponse)
+  }
+
+  let commentQuery = "SELECT * FROM comments where user_id = ?"
+  const [comments] = await db.promise().query(commentQuery, [userId])
+
+  updateResponse(200, comments)
+  return res.json(apiResponse)
+});
+
+router.post('/comments', async function(req, res, next) {
   const newsId  = req.body.news_id
   const content = req.body.content
 
-  let userId = req.query.userId
-  let apiKey = req.query.apiKey
 
+  // User Check
+  const userName = req.query.userName
+  const apiKey = req.query.apiKey
+  let userQuery = "SELECT * FROM users where userName = ?"
+  const [users] = await db.promise().query(userQuery, [userName])
+  if (users.length == 0) {
+    updateResponse(404, "The user not found")
+    return res.json(apiResponse)
+  }
+  let userId = users[0].id
   if (!isUserValid(userId, apiKey)) {
-    return res.json("Invalid user")
+    updateResponse(401, "unauthorized user")
+    return res.json(apiResponse)
+  }
+
+  let newsQuery = "SELECT * FROM news where id = ?"
+  const [news] = await db.promise().query(newsQuery, [newsId])
+  if (news.length == 0) {
+    updateResponse(404, "The news does not exist")
+    return res.json(apiResponse)
+  }
+
+  let commentQuery = "SELECT * FROM comments where user_id = ? and news_id = ?"
+  const [comments] = await db.promise().query(commentQuery, [userId, newsId])
+  if (comments.length != 0) {
+    updateResponse(409, "The comment already exists")
+    return res.json(apiResponse)
   }
 
   let sqlquery = "INSERT INTO comments (user_id, news_id, content) VALUES (?, ?, ?)"
-    db.query(sqlquery, [userId, newsId, content], (err, result) => {
-        if (err) {
-            next(err)
-            return res.json(err)
-        }
-    })
-    console.log(`New comment is created by userId: ${req.session.userId}, newsId: ${newsId}`)
-    let message = "Your comment is successfully posted!"
-    return res.json(message)
+  await db.promise().query(sqlquery, [userId, newsId,content])
+
+  console.log(`New comment is created by userId: ${req.session.userId}, newsId: ${newsId}`)
+  updateResponse(201, "Your comment is successfully create!")
+  return res.json(apiResponse)
 })
 
-router.get('/my_news', function(req, res, next) {
-    let userId = req.query.userId
-    let apiKey = req.query.apiKey
+router.put('/comments', async function(req, res, next) {
+  const newsId = req.body.news_id
+  const content = req.body.content
 
-    if (!isUserValid(userId, apiKey)) {
-      return res.json("Invalid user")
-    }
+  // User Check
+  const userName = req.query.userName
+  const apiKey = req.query.apiKey
+  let userQuery = "SELECT * from users where userName = ?"
+  const [users] = await db.promise().query(userQuery, [userName])
 
-    let sqlquery = "SELECT news.*, comments.content as comment FROM news inner join comments on comments.news_id = news.id where comments.user_id = ? ORDER BY comments.updated_at DESC LIMIT 30"
-    // execute sql query
-    db.query(sqlquery, [userId], (err, result) => {
-        if (err) {
-            next(err)
-        }
-        console.log(`GET /api/my_news is called`)
-        res.json({newsList:result})
-     })
+  if (users.length == 0) {
+    updateResponse(404, "The user not found")
+    return res.json(apiResponse)
+  }
+
+  let userId = users[0].id
+  if (!isUserValid(userId, apiKey)) {
+    updateResponse(401, "unauthorized user")
+    return res.json(apiResponse)
+  }
+
+  let commentQuery = "SELECT id FROM comments where user_id = ? and news_id = ?"
+  const [comments] = await db.promise().query(commentQuery, [userId, newsId])
+  if (comments.length == 0) {
+    updateResponse(404, "The comment does not exist")
+    return res.json(apiResponse)
+  }
+
+  const updateQuery = "UPDATE comments SET content = ? WHERE id = ?"
+  try {
+    await db.promise().query(updateQuery, [content, comments[0].id])
+  } catch(err) {
+    return res.json(err)
+  }
+  updateResponse(204, "Your comment is successfully updated!!")
+  return res.json(apiResponse)
+})
+
+router.delete('/comments', async function(req, res, next) {
+  const newsId = req.body.news_id
+
+  // User Check
+  const userName = req.query.userName
+  const apiKey = req.query.apiKey
+  let userQuery = "SELECT * from users where userName = ?"
+  const [users] = await db.promise().query(userQuery, [userName])
+
+  if (users.length == 0) {
+    updateResponse(404, "The user not found")
+    return res.json(apiResponse)
+  }
+
+  let userId = users[0].id
+  if (!isUserValid(userId, apiKey)) {
+    updateResponse(401, "unauthorized user")
+    return res.json(apiResponse)
+  }
+
+  let commentQuery = "SELECT id FROM comments where user_id = ? and news_id = ?"
+  const [comments] = await db.promise().query(commentQuery, [userId, newsId])
+  if (comments.length == 0) {
+    updateResponse(404, "The comment does not exist")
+    return res.json(apiResponse);
+  }
+
+  const deleteQuery = "DELETE from comments WHERE id = ?"
+  try {
+    await db.promise().query(deleteQuery, [comments[0].id])
+  } catch(err) {
+    return res.json(err)
+  }
+  updateResponse(204, "Your comment is successfully deleted!!")
+  return res.json(apiResponse)
+})
+
+router.get('/my_news', async function(req, res, next) {
+    try {
+      console.log(`GET /api/my_news is called`)
+
+      let userName = req.query.userName
+      let apiKey = req.query.apiKey
+
+      let userQuery = "SELECT * from users where userName = ?"
+      const [users] = await db.promise().query(userQuery, [userName])
+      if (users.length == 0) {
+        updateResponse(404, "The user not found")
+        return res.json(apiResponse)
+      }
+
+      let userId = users[0].id
+      if (!isUserValid(userId, apiKey)) {
+        updateResponse(401, "unauthorized user")
+        return res.json(apiResponse)
+      }
+
+      let sqlquery = "SELECT news.*, comments.content as comment FROM news inner join comments on comments.news_id = news.id where comments.user_id = ? ORDER BY comments.updated_at DESC LIMIT 30"
+      // execute sql query
+      db.query(sqlquery, [userId], (err, result) => {
+          if (err) {
+              next(err)
+          }
+          console.log(`GET /api/my_news is called`)
+          updateResponse(200, result)
+          return res.json(apiResponse)
+       })
+    } catch (err) {
+         console.log(err)
+         updateResponse(500, "Something wrong happend")
+         return res.json(apiResponse)
+      }
 })
 
 
 function isUserValid(userId, key) {
   let originalString = userId + process.env.SALT
   const apiKey = SHA256(originalString).toString();
-  console.log(apiKey)
   if (apiKey != key) {
     return false
   }
   return true
+}
+
+function updateResponse(code, response) {
+  apiResponse["statusCode"] = code
+  apiResponse["result"] = response
 }
 
 // Export the router object so index.js can access it
