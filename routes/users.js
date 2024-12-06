@@ -3,6 +3,7 @@ const express = require("express")
 const router = express.Router()
 const bcrypt = require('bcrypt')
 const saltRounds = 10
+const SHA256 = require("crypto-js/sha256");
 
 
 // Sanitisation
@@ -107,6 +108,15 @@ router.get('/logout', redirectLogin, (req,res) => {
       return res.redirect('../?message=' + message)
     })
 })
+
+router.get('/developer', redirectLogin, (req,res) => {
+  let userId = req.session.userId
+
+  let originalString = userId + process.env.SALT
+  const apiKey = SHA256(originalString).toString();
+  return res.render("developer.ejs", {apiKey: apiKey})
+  res.send(`Your API KEY: ${apiKey} <a href="../../">Home</>`)
+});
 
 // Export the router object so index.js can access it
 module.exports = router

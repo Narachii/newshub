@@ -64,3 +64,6 @@ CREATE TABLE IF NOT EXISTS comments (
 
   UNIQUE KEY unique_user_news (user_id, news_id)
 );
+
+
+ALTER TABLE `users` ADD UNIQUE user_unique_username (`userName`)

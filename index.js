@@ -1,5 +1,6 @@
 var express = require ('express')
 var ejs = require('ejs')
+var bodyParser = require('body-parser');
 
 // set up environment variables
 var dotenv = require('dotenv')
@@ -27,7 +28,9 @@ app.set('view engine', 'ejs')
 // Set up bootstrap css
 app.use('/css', express.static(__dirname + '/node_modules/bootstrap/dist/css'));
 
+app.use(bodyParser.json());
 // Set up the body parser
+app.use(bodyParser.urlencoded({ extended: true }))
 app.use(express.urlencoded({ extended: true }))
 
 // Create a session
@@ -65,9 +68,13 @@ app.use('/', mainRoutes)
 const usersRoutes = require('./routes/users')
 app.use('/users', usersRoutes)
 
-// Load the route handlers for /books
+// Load the route handlers for /news
 const newsRoutes = require('./routes/news')
 app.use('/news', newsRoutes)
+
+// Load the route handlers for /api
+const apiRoutes = require('./routes/api')
+app.use('/api', apiRoutes)
 
 // Start the web app listening
 app.listen(port, () => console.log(`Node app listening on port ${port}!`))
