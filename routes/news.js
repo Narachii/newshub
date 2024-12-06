@@ -69,12 +69,12 @@ router.get('/search_result', redirectLogin, function (req, res, next) {
     params.push("%" + req.query.title + "%");
   }
 
-  if (typeof req.query.description !== '') {
+  if (req.query.description !== '') {
     conditions.push("description LIKE ?");
     params.push("%" + req.query.description + "%");
   }
 
-  if (typeof req.query.publishedAt !== '') {
+  if (req.query.publishedAt !== '') {
     let date = new Date();
     if (req.query.publishedAt == "today") {
       date.setDate(date.getDate() - 1)
@@ -87,8 +87,8 @@ router.get('/search_result', redirectLogin, function (req, res, next) {
     params.push(date);
   }
 
-  let whereQueries = conditions.length ? conditions.join(' AND ') : '1'
-  let sqlquery = "SELECT * FROM news WHERE " + whereQueries + "LIMIT 30"// query database to get all the books
+  let whereQueries = conditions.length ? conditions.join(' AND ') : '1=1'
+  let sqlquery = "SELECT * FROM news WHERE " + whereQueries + " LIMIT 30"
   console.log(`GET /news/search_result is called by userId: ${req.session.user_id}, query: ${sqlquery}, params: ${params}`)
 
   db.query(sqlquery, params, (err, result) => {
