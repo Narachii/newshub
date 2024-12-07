@@ -62,14 +62,16 @@
                       <input type="hidden" name="id" value="<%= comment.id %>" />
                       <label for="content" class="form-label">Edit Your Comment</label><br>
                       <textarea name="content" rows="4" cols="50" class="form-control"><%= comment.content %></textarea><br><br>
-                      <div class="d-flex justify-content-between align-items-start">
+                      <div class="d-flex align-items-start">
                         <button class="btn btn-dark" type="submit">Edit Comment</button>
-                      </form>
+                      </div>
+                    </form>
+                    <div class="d-flex align-items-start mt-2">
                       <form id="deleteForm-<%= comment.id %>" method="POST" action="./comments/<%= comment.id %>?_method=DELETE">
                         <input type="hidden" name="news_id" value="<%= article.id %>" />
                         <button class="btn btn-danger" type="submit">DELETE Comment</button>
+                      </form>
                     </div>
-                    </form>
                     <hr class="mt-2 mb-3"/>
                   </div>
             <% }
