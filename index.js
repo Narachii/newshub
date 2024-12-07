@@ -15,6 +15,10 @@ var session = require ('express-session')
 //validation
 var validator = require ('express-validator');
 
+// Redis
+const redis = require('redis')
+const redisClient = redis.createClient();
+
 const app = express()
 const port = 8000
 
@@ -59,6 +63,14 @@ db.connect((err) => {
     console.log('Connected to database')
 })
 global.db = db
+
+// Connect to Redis
+redisClient.connect();
+
+// Log Redis connection errors
+redisClient.on('error', (err) => console.log('Redis Client Error', err));
+
+global.redisClient = redisClient
 
 // Load the route handlers
 const mainRoutes = require("./routes/main")
