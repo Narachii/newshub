@@ -38,6 +38,49 @@ router.get('/import_source', function(req,res,next) {
   })
 });
 
+router.get('/daily', async function(req, res, next){
+  try {
+    // fetch daily ranking from redis
+    const today = new Date().toISOString().slice(0, 10);
+    const topNews = await redisClient.sendCommand(['ZREVRANGE', `news-views:${today}`, '0', '20', 'WITHSCORES']);
+    const rankings = [];
+    if (topNews.length == 0) {
+      return res.send('There is no article found   <a href='+'../'+'>Home</a>')
+    }
+
+    for (let i = 0; i < topNews.length; i += 2) {
+      let item = {"newsId": 0, "views": 0}
+      item["newsId"] = topNews[i]
+      item["views"] = topNews[i + 1]
+      rankings.push(item)
+    }
+
+    let newsIds = rankings.map(item => item.newsId);
+
+    let sql = "SELECT * FROM news where id IN (?)"
+    const [newsResult] = await db.promise().query(sql, [newsIds]);
+    if (newsResult.length == 0) {
+      return res.send('There is no article found   <a href='+'../'+'>Home</a>')
+    }
+
+    // Create a map of newsId to views
+    // [ { newsId: '37', views: '2' }, { newsId: '30', views: '1' } ]
+    const viewsMap = new Map(rankings.map(item => [item.newsId, item.views]));
+
+    const newsWithViews = newsResult.map(news => ({
+      ...news,
+      views: viewsMap.get(news.id.toString())
+    }));
+
+    // Sort newsWithViews by views in descending order
+    newsWithViews.sort((a, b) => parseInt(b.views, 10) - parseInt(a.views, 10));
+
+    res.render("news_daily.ejs", {newsList:newsWithViews,message:null})
+  } catch (error) {
+    console.error('Error fetching top news:', error);
+    res.status(500).json({ error: 'Failed to fetch top news' });
+  }
+});
 
 router.get('/search',function(req, res, next) {
   let sourceQuery = "SELECT source.id as id, source.name as name FROM source inner join news on news.source_id = source.id group by source.id, source.name"
@@ -213,6 +256,16 @@ router.get('/:id', redirectLogin, async function(req, res, next) {
         loginUserComment = true
       }
     })
+
+    // udpate redis ranking
+    try {
+      const today = new Date().toISOString().slice(0, 10);
+      await redisClient.zIncrBy(`news-views:${today}`, 1, newsId);
+    } catch (error) {
+      console.error('Error incrementing view count:', error);
+      next(error);
+    }
+
     res.render("news_show.ejs", { article:article, comments:comments, loginUserComment: loginUserComment, userId: req.session.userId, message:message })
   } catch(error) {
     next(error)
@@ -220,6 +273,7 @@ router.get('/:id', redirectLogin, async function(req, res, next) {
   }
 
 })
+
 
 router.put('/comments', function(req, res, next) {
   const commentId = req.body.id
