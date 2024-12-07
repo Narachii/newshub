@@ -66,4 +66,6 @@ CREATE TABLE IF NOT EXISTS comments (
 );
 
 
-ALTER TABLE `users` ADD UNIQUE user_unique_username (`userName`)
+ALTER TABLE `users` ADD UNIQUE user_unique_username (`userName`);
+DROP INDEX  unique_author_title ON news;
+ALTER TABLE `news` ADD UNIQUE news_unique_title (`title`);
