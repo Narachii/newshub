@@ -187,7 +187,7 @@ router.post('/comments', redirectLogin, function(req, res, next) {
     return res.redirect(`./${newsId}?message=${message}`)
 })
 
-router.get('/:id', redirectLogin, function(req, res, next) {
+router.get('/:id', redirectLogin, async function(req, res, next) {
   const newsId = req.params.id;
   let message = req.query.message
   let sqlquery = "SELECT * FROM news where id = ?"
@@ -202,18 +202,23 @@ router.get('/:id', redirectLogin, function(req, res, next) {
       }
       article = result[0]
   })
+
+
   let commentSql = "SELECT comments.id, content, userName, comments.user_id as userId from comments inner join users on users.id = comments.user_id where comments.news_id = ?"
-  db.query(commentSql, [newsId], (err, result) => {
-      if (err) {
-          next(err)
+  try {
+    const [comments] = await db.promise().query(commentSql, newsId)
+
+    comments.forEach(function(item) {
+      if (item.userId == req.session.userId) {
+        loginUserComment = true
       }
-      result.forEach(function(item) {
-        if (item.userId == req.session.userId) {
-          loginUserComment = true
-        }
-      });
-      res.render("news_show.ejs", { article:article, comments:result, loginUserComment: loginUserComment, userId: req.session.userId, message:message })
-  })
+    })
+    res.render("news_show.ejs", { article:article, comments:comments, loginUserComment: loginUserComment, userId: req.session.userId, message:message })
+  } catch(error) {
+    next(error)
+    console.log(error)
+  }
+
 })
 
 router.put('/comments', function(req, res, next) {
