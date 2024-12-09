@@ -4,9 +4,9 @@ const router = express.Router()
 const bcrypt = require('bcrypt')
 const saltRounds = 10
 const SHA256 = require("crypto-js/sha256");
+const sanitizeHtml = require('sanitize-html');
 
-
-// Sanitisation
+// Validation
 const { check, validationResult } = require('express-validator');
 
 const redirectLogin = (req, res, next) => {
@@ -31,24 +31,29 @@ router.post('/registered', [
   check('password').isLength({ min: 4 }),
 ], function (req, res, next) {
   const errors = validationResult(req);
+  const userName = sanitizeHtml(req.body.username)
+  const firstName = sanitizeHtml(req.body.first)
+  const lastName = sanitizeHtml(req.body.last)
+  const email = sanitizeHtml(req.body.email)
+  const password = sanitizeHtml(req.body.password)
 
   if (!errors.isEmpty()) {
     let errorMessage = errors.errors.map(error => error.path).join(',');
     return res.redirect('./register?message=' + errorMessage)
   }
 
-  const plainPassword = req.body.password
+  const plainPassword = password
   bcrypt.hash(plainPassword, saltRounds, function(err, hashedPassword) {
     // Store hashed password in your database.
       let sqlquery = "INSERT INTO users (username, firstName, lastName, email, hashedPassword) VALUES (?,?,?,?,?)"
-      let newrecord = [req.body.username, req.body.first, req.body.last, req.body.email, hashedPassword]
+      let newrecord = [userName, firstName, lastName, email, hashedPassword]
       db.query(sqlquery, newrecord, (err, result) => {
           if (err) {
               next(err)
           }
           else {
             let message = 'Your account is successfully registered!'
-            console.log(`New Account is created: ${req.body.username}`)
+            console.log(`New Account is created: ${userName}`)
             return res.redirect('../?message=' + message)
           }
       })
@@ -63,8 +68,9 @@ router.get('/loggedin', function (req, res, next) {
 router.post('/loggedin', function (req, res, next) {
   let hashedPassword = ""
   let hashedPlainPassword = ""
-  let plainPassword = req.body.password
-  let sqlquery = "SELECT id, hashedPassword FROM users where userName =" + '"' + req.body.username + '"'
+  let plainPassword = sanitizeHtml(req.body.password)
+  let userName = sanitizeHtml(req.body.username)
+  let sqlquery = "SELECT id, hashedPassword FROM users where userName =" + '"' + userName + '"'
   let userId = 0;
   // execute sql query
   db.query(sqlquery, (err, result) => {
