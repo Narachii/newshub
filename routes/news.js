@@ -92,10 +92,13 @@ router.get('/search',function(req, res, next) {
   });
 })
 
-router.get('/search_result', redirectLogin, function (req, res, next) {
+router.get('/search_result', redirectLogin, async function (req, res, next) {
   let conditions = []
   let params = []
   let message = req.query.message
+
+  //ex. search:/news/search_result?author=&title=&description=football&source=&publishedAt=month
+  const cacheKey = 'search:' + req.originalUrl
 
   if (req.query.author !== '') {
     conditions.push("author LIKE ?");
@@ -132,14 +135,30 @@ router.get('/search_result', redirectLogin, function (req, res, next) {
 
   let whereQueries = conditions.length ? conditions.join(' AND ') : '1=1'
   let sqlquery = "SELECT * FROM news WHERE " + whereQueries + " LIMIT 30"
-  console.log(`GET /news/search_result is called by userId: ${req.session.user_id}, query: ${sqlquery}, params: ${params}`)
+  try {
+    const cacheResult = await redisClient.get(cacheKey);
+    if (cacheResult != null) {
+      let resultObject = JSON.parse(cacheResult);
+      console.log("cacheFound!! Return result from Redis")
+      console.log("cacheKey:", cacheKey)
+      console.log("cacheResult:", cacheResult)
+      return res.render("news_list.ejs", {newsList:resultObject,message:message})
+    }
+    const [result] = await db.promise().query(sqlquery, params)
+    if (result.length != 0) {
+      // setKey with result to Redis
+      console.log("New cache Key is created!")
+      console.log("CacheKey:", cacheKey)
+      console.log("CacheValue:", result)
+      await redisClient.setEx(cacheKey, 3600, JSON.stringify(result));
+    }
 
-  db.query(sqlquery, params, (err, result) => {
-      if (err) {
-          next(err)
-      }
-      res.render("news_list.ejs", {newsList:result,message:message})
-   })
+    console.log("No cache found Return SQL result")
+    res.render("news_list.ejs", {newsList:result,message:message})
+  } catch(err) {
+    console.log(err)
+    return res.status(500).send("Something wrong happened")
+  }
 })
 
 router.get('/my_news/:id', redirectLogin, function(req, res, next) {
