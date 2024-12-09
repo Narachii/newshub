@@ -3,6 +3,7 @@ const router = express.Router()
 
 const NewsAPI = require('newsapi');
 const newsapi = new NewsAPI(process.env.NEWS_API_KEY);
+const sanitizeHtml = require('sanitize-html');
 
 
 const redirectLogin = (req, res, next) => {
@@ -101,23 +102,27 @@ router.get('/search_result', redirectLogin, async function (req, res, next) {
   const cacheKey = 'search:' + req.originalUrl
 
   if (req.query.author !== '') {
+    let author = sanitizeHtml(req.query.author)
     conditions.push("author LIKE ?");
-    params.push("%" + req.query.author + "%");
+    params.push("%" + author + "%");
   }
 
   if (req.query.source !== '') {
+    let source = sanitizeHtml(req.query.source)
     conditions.push("source_id = ?");
-    params.push(req.query.source);
+    params.push(source);
   }
 
   if (req.query.title !== '') {
+    let title = sanitizeHtml(req.query.title)
     conditions.push("title LIKE ?");
-    params.push("%" + req.query.title + "%");
+    params.push("%" + title + "%");
   }
 
   if (req.query.description !== '') {
+    let description = sanitizeHtml(req.query.description)
     conditions.push("description LIKE ?");
-    params.push("%" + req.query.description + "%");
+    params.push("%" + description + "%");
   }
 
   if (req.query.publishedAt !== '') {
@@ -162,7 +167,7 @@ router.get('/search_result', redirectLogin, async function (req, res, next) {
 })
 
 router.get('/my_news/:id', redirectLogin, function(req, res, next) {
-    const userId = req.params.id
+    const userId = sanitizeHtml(req.params.id)
     if (userId != req.session.userId) {
           return res.status(401).send("The operation is unauthorized")
     }
@@ -200,7 +205,7 @@ router.get('/fetch', function(req, res, next) {
 })
 
 router.get('/fetch_news', redirectLogin, function(req, res, next) {
-  let keyword = req.query.keyword
+  let keyword = sanitizeHtml(req.query.keyword)
   let source = req.query.source.split(":")
   let sourceName = source[0]
   let sourceId = source[1]
@@ -236,8 +241,8 @@ router.get('/fetch_news', redirectLogin, function(req, res, next) {
 
 router.post('/comments', redirectLogin, function(req, res, next) {
   const userId = req.session.userId
-  const newsId  = req.body.news_id
-  const content = req.body.content
+  const newsId  = sanitizeHtml(req.body.news_id)
+  const content = sanitizeHtml(req.body.content)
   let sqlquery = "INSERT INTO comments (user_id, news_id, content) VALUES (?, ?, ?)"
     db.query(sqlquery, [userId, newsId, content], (err, result) => {
         if (err) {
@@ -250,7 +255,7 @@ router.post('/comments', redirectLogin, function(req, res, next) {
 })
 
 router.get('/:id', redirectLogin, async function(req, res, next) {
-  const newsId = req.params.id;
+  const newsId = sanitizeHtml(req.params.id);
   let message = req.query.message
   let sqlquery = "SELECT * FROM news where id = ?"
   let article = []
@@ -295,10 +300,10 @@ router.get('/:id', redirectLogin, async function(req, res, next) {
 
 
 router.put('/comments', function(req, res, next) {
-  const commentId = req.body.id
-  const newsId = req.body.news_id
+  const commentId = sanitizeHtml(req.body.id)
+  const newsId = sanitizeHtml(req.body.news_id)
   const sqlquery = "SELECT user_id FROM comments WHERE id = ?";
-  const content = req.body.content
+  const content = sanitizeHtml(req.body.content)
 
   db.query(sqlquery, [commentId], (err, result) => {
       if (err) {
@@ -328,8 +333,8 @@ router.put('/comments', function(req, res, next) {
 
 
 router.delete('/comments/:id/', function(req, res, next) {
-  const commentId = req.params.id
-  const newsId = req.body.news_id
+  const commentId = sanitizeHtml(req.params.id)
+  const newsId = sanitizeHtml(req.body.news_id)
   const sqlquery = "SELECT user_id FROM comments WHERE id = ?";
 
   db.query(sqlquery, [commentId], (err, result) => {
