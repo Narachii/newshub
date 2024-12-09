@@ -150,7 +150,7 @@ router.get('/search_result', redirectLogin, async function (req, res, next) {
       console.log("New cache Key is created!")
       console.log("CacheKey:", cacheKey)
       console.log("CacheValue:", result)
-      await redisClient.setEx(cacheKey, 3600, JSON.stringify(result));
+      await redisClient.setEx(cacheKey, 300, JSON.stringify(result));
     }
 
     console.log("No cache found Return SQL result")
