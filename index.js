@@ -62,6 +62,19 @@ db.connect((err) => {
     }
     console.log('Connected to database')
 })
+
+// Keep the connection alive
+// Patch Can't add new command when connection is in closed state error
+db.on('error', (err) => {
+  console.error('Database connection error:', err);
+  if (err.code === 'PROTOCOL_CONNECTION_LOST') {
+    console.log('Reconnecting...');
+    connection.connect();
+  } else {
+    throw err
+  }
+});
+
 global.db = db
 
 // Connect to Redis
