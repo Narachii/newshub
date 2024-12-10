@@ -49,10 +49,10 @@ app.use(session({
 
 // Define the database connection
 const db = mysql.createConnection ({
-    host: 'localhost',
-    user: 'newshub_app',
-    password: 'qwertyuiop',
-    database: 'newshub'
+    host: process.env.DB_HOTST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSOWRD,
+    database: process.env.DB_NAME
 })
 
 // Connect to the database
