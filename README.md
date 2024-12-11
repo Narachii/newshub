@@ -12,12 +12,13 @@ npm install
 ```
 
 #### Install and Start Mysql server
-Install: Please follow the instruction from the mysql official document
+Install And Run the server: Please follow the instruction from the mysql official document
 https://dev.mysql.com/doc/refman/8.4/en/linux-installation.html
 
-Run mysql:
+The initial database setup code is in the init.sql. Please run that script to setup the tables
+Run init.sql to setup the tables:
 ```
-sudo mysql
+sudo mysql < init.sql
 ```
 
 #### Install and Start Redis server
