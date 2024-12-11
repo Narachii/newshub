@@ -1,3 +1,4 @@
+# Dummy db config for development
 CREATE USER IF NOT EXISTS 'newshub_app'@'localhost' IDENTIFIED BY 'qwertyuiop'; 
 GRANT ALL PRIVILEGES ON newshub.* TO 'newshub_app'@'localhost';
 
