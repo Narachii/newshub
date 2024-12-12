@@ -5,6 +5,8 @@ const NewsAPI = require('newsapi');
 const newsapi = new NewsAPI(process.env.NEWS_API_KEY);
 const sanitizeHtml = require('sanitize-html');
 
+const csrf = require('csurf');
+const csrfProtection = csrf({ cookie: true })
 
 const redirectLogin = (req, res, next) => {
   if (!req.session.userId ) {
@@ -239,7 +241,7 @@ router.get('/fetch_news', redirectLogin, function(req, res, next) {
   })
 })
 
-router.post('/comments', redirectLogin, function(req, res, next) {
+router.post('/comments', [redirectLogin, csrfProtection], function(req, res, next) {
   const userId = req.session.userId
   const newsId  = sanitizeHtml(req.body.news_id)
   const content = sanitizeHtml(req.body.content)
@@ -254,7 +256,7 @@ router.post('/comments', redirectLogin, function(req, res, next) {
     return res.redirect(`./${newsId}?message=${message}`)
 })
 
-router.get('/:id', redirectLogin, async function(req, res, next) {
+router.get('/:id', [redirectLogin, csrfProtection], async function(req, res, next) {
   const newsId = sanitizeHtml(req.params.id);
   let message = req.query.message
   let sqlquery = "SELECT * FROM news where id = ?"
@@ -290,7 +292,7 @@ router.get('/:id', redirectLogin, async function(req, res, next) {
       next(error);
     }
 
-    res.render("news_show.ejs", { article:article, comments:comments, loginUserComment: loginUserComment, userId: req.session.userId, message:message })
+    res.render("news_show.ejs", { article:article, comments:comments, loginUserComment: loginUserComment, userId: req.session.userId, message:message, csrfToken: req.csrfToken()})
   } catch(error) {
     next(error)
     console.log(error)
@@ -299,7 +301,7 @@ router.get('/:id', redirectLogin, async function(req, res, next) {
 })
 
 
-router.put('/comments', function(req, res, next) {
+router.put('/comments', csrfProtection, function(req, res, next) {
   const commentId = sanitizeHtml(req.body.id)
   const newsId = sanitizeHtml(req.body.news_id)
   const sqlquery = "SELECT user_id FROM comments WHERE id = ?";
@@ -332,7 +334,7 @@ router.put('/comments', function(req, res, next) {
 })
 
 
-router.delete('/comments/:id/', function(req, res, next) {
+router.delete('/comments/:id/', csrfProtection, function(req, res, next) {
   const commentId = sanitizeHtml(req.params.id)
   const newsId = sanitizeHtml(req.body.news_id)
   const sqlquery = "SELECT user_id FROM comments WHERE id = ?";
