@@ -40,6 +40,7 @@
             <% if (!loginUserComment) { %>
               <div>
                 <form method="POST" action="comments">
+                  <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                   <input type="hidden" name="news_id" value="<%= article.id %>" />
                   <label for="content" class="form-label">Your Comment</label><br>
                   <textarea id="content" name="content" rows="4" cols="50" placeholder="write your comment" class="form-control"></textarea><br>
@@ -59,6 +60,7 @@
                   <div>
                     <form id="editForm-<%= comment.id %>" method="POST" action="./comments?_method=PUT">
                       <input type="hidden" name="news_id" value="<%= article.id %>" />
+                      <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                       <input type="hidden" name="id" value="<%= comment.id %>" />
                       <label for="content" class="form-label">Edit Your Comment</label><br>
                       <textarea name="content" rows="4" cols="50" class="form-control"><%= comment.content %></textarea><br><br>
@@ -69,6 +71,7 @@
                     <div class="d-flex align-items-start mt-2">
                       <form id="deleteForm-<%= comment.id %>" method="POST" action="./comments/<%= comment.id %>?_method=DELETE">
                         <input type="hidden" name="news_id" value="<%= article.id %>" />
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>" />
                         <button class="btn btn-danger" type="submit">DELETE Comment</button>
                       </form>
                     </div>

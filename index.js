@@ -1,7 +1,7 @@
 var express = require ('express')
 var ejs = require('ejs')
 var bodyParser = require('body-parser');
-
+var cookieParser = require('cookie-parser');
 // set up environment variables
 var dotenv = require('dotenv')
 dotenv.config()
@@ -33,6 +33,8 @@ app.set('view engine', 'ejs')
 app.use('/css', express.static(__dirname + '/node_modules/bootstrap/dist/css'));
 
 app.use(bodyParser.json());
+app.use(cookieParser());
+
 // Set up the body parser
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(express.urlencoded({ extended: true }))
